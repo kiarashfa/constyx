@@ -15,6 +15,7 @@ const PROGRAMS = [
   { to: '/focus', label: 'FOCUS — deep-work sessions' },
   { to: '/screensaver', label: 'SCREENSAVER — export the rain' },
   { to: '/ascii', label: 'ASCII — transmission composer' },
+  { to: '/code-vision', label: 'CODE VISION — see the feed as code' },
 ];
 
 /** Full-bleed rain with a minimal boot readout floating on top. */

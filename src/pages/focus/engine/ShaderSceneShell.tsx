@@ -9,6 +9,7 @@ import {
 } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
 import { PointerLockControls } from '@react-three/drei';
+import { CodeVisionPass } from '../../../engine/codevision';
 
 export interface ShaderSceneShellProps {
   title: string;
@@ -47,6 +48,7 @@ export function ShaderSceneShell({
 }: ShaderSceneShellProps) {
   const [locked, setLocked] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [codeVision, setCodeVision] = useState(false);
   const lockRef = useRef<() => void>(() => {});
   const lockedRef = useRef(false);
   const firstLockRef = useRef(true);
@@ -76,11 +78,33 @@ export function ShaderSceneShell({
     return () => document.removeEventListener('click', onClick);
   }, [onAdjust, showToast]);
 
+  // Code-vision overlay: 'V' toggles it on/off. Independent of the click
+  // interaction and the audio, so toggling never disturbs either. The
+  // CodeVisionCompositor ramps the effect in/out smoothly.
+  const toggleCodeVision = useMemo(
+    () => () =>
+      setCodeVision((on) => {
+        showToast(on ? 'code vision — released' : 'code vision — engaged', 2600);
+        return !on;
+      }),
+    [showToast],
+  );
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'v' || e.key === 'V') {
+        if (e.ctrlKey || e.metaKey || e.altKey) return;
+        toggleCodeVision();
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [toggleCodeVision]);
+
   // Nudge discoverability once per visit, without a persistent HUD element.
   useEffect(() => {
     if (locked && firstLockRef.current) {
       firstLockRef.current = false;
-      if (adjustHint) showToast(`click — ${adjustHint}`, 4200);
+      if (adjustHint) showToast(`click — ${adjustHint}  ·  V — code vision`, 4200);
     }
   }, [locked, adjustHint, showToast]);
 
@@ -89,6 +113,7 @@ export function ShaderSceneShell({
       (window as unknown as Record<string, unknown>).__focusDebug = {
         setLocked,
         adjust: () => onAdjust?.(),
+        codeVision: (on?: boolean) => setCodeVision((prev) => (on === undefined ? !prev : on)),
       };
     }
   }, [onAdjust]);
@@ -98,12 +123,16 @@ export function ShaderSceneShell({
       <Canvas dpr={1} gl={{ antialias: false, powerPreference: 'high-performance' }}>
         <LookRig yaw={yaw} pitch={pitch} lockRef={lockRef} setLocked={setLocked} />
         {children}
+        <CodeVisionPass active={codeVision} />
       </Canvas>
 
       {/* ---- HUD (DOM) — same conventions as Locations ---- */}
       <div className="pointer-events-none absolute left-0 right-0 top-0 flex items-center justify-between px-4 py-2 text-[11px] tracking-[0.25em]">
         <span className="text-phosphor/70">FOCUS :: {title}</span>
-        <span className="text-phosphor/40">[ESC] HOLD PROGRAM</span>
+        <span className="flex items-center gap-3">
+          {codeVision && <span className="glow text-phosphor">◈ CODE VISION</span>}
+          <span className="text-phosphor/40">[ESC] HOLD PROGRAM</span>
+        </span>
       </div>
 
       {toast && (
@@ -127,6 +156,8 @@ export function ShaderSceneShell({
                   click — {adjustHint}
                 </>
               )}
+              <br />
+              V — code vision {codeVision ? '(on)' : ''}
               <br />
               ESC — hold program
             </p>
