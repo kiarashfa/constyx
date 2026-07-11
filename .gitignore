@@ -1,0 +1,34 @@
+# dependencies
+assets-userprovided
+node_modules
+dist
+dist-ssr
+
+# typecheck
+*.tsbuildinfo
+
+# logs
+logs
+*.log
+npm-debug.log*
+
+# dev tooling
+.claude/
+
+# reference
+HANDOFF.md
+README.md
+
+# editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# local env
+*.local

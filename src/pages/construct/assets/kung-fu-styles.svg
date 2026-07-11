@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 470" font-family="Consolas, 'Courier New', monospace">
+  <style>
+    .box { fill: #ffffff; stroke: #10201a; stroke-width: 1.5; }
+    .group { fill: #f2f5f3; stroke: #47564f; stroke-width: 1.2; }
+    .name { fill: #10201a; font-size: 14px; letter-spacing: 1.5px; }
+    .sub { fill: #47564f; font-size: 11px; }
+    .item { fill: #10201a; font-size: 12.5px; }
+    .note { fill: #067a3e; font-size: 11px; }
+    .wire { stroke: #8a978f; stroke-width: 1.2; fill: none; }
+  </style>
+
+  <rect class="box" x="220" y="20" width="320" height="58" />
+  <text class="name" x="380" y="44" text-anchor="middle">CHINESE MARTIAL ARTS</text>
+  <text class="sub" x="380" y="64" text-anchor="middle">gongfu (skill through effort) / wushu (martial art)</text>
+
+  <path class="wire" d="M380 78 V108 M380 108 H190 M380 108 H570 M190 108 V138 M570 108 V138" />
+
+  <rect class="box" x="70" y="138" width="240" height="52" />
+  <text class="name" x="190" y="160" text-anchor="middle">EXTERNAL — WAIJIA</text>
+  <text class="sub" x="190" y="178" text-anchor="middle">force, speed, conditioning</text>
+
+  <rect class="box" x="450" y="138" width="240" height="52" />
+  <text class="name" x="570" y="160" text-anchor="middle">INTERNAL — NEIJIA</text>
+  <text class="sub" x="570" y="178" text-anchor="middle">structure, sensitivity, yielding</text>
+
+  <path class="wire" d="M190 190 V220 M190 220 H100 M190 220 H290 M100 220 V248 M290 220 V248 M570 190 V248" />
+
+  <rect class="group" x="20" y="248" width="170" height="128" />
+  <text class="name" x="105" y="272" text-anchor="middle">NORTHERN</text>
+  <text class="sub" x="105" y="289" text-anchor="middle">"northern legs"</text>
+  <text class="item" x="34" y="314">▸ Long Fist</text>
+  <text class="item" x="34" y="334">▸ Praying Mantis</text>
+  <text class="item" x="34" y="354">▸ Bajiquan</text>
+
+  <rect class="group" x="210" y="248" width="170" height="128" />
+  <text class="name" x="295" y="272" text-anchor="middle">SOUTHERN</text>
+  <text class="sub" x="295" y="289" text-anchor="middle">"southern fists"</text>
+  <text class="item" x="224" y="314">▸ Wing Chun</text>
+  <text class="item" x="224" y="334">▸ Hung Ga</text>
+  <text class="item" x="224" y="354">▸ Choy Li Fut</text>
+
+  <rect class="group" x="450" y="248" width="240" height="128" />
+  <text class="name" x="570" y="272" text-anchor="middle">THE THREE SISTERS</text>
+  <text class="item" x="466" y="300">▸ Taijiquan — spirals, yielding</text>
+  <text class="item" x="466" y="322">▸ Baguazhang — circle walking</text>
+  <text class="item" x="466" y="344">▸ Xingyiquan — linear bursts</text>
+
+  <text class="note" x="380" y="420" text-anchor="middle">note :: a working map, not a taxonomy — real lineages blur every one of these lines</text>
+  <text class="sub" x="380" y="444" text-anchor="middle">hundreds of documented styles descend from village, temple and military lines</text>
+</svg>

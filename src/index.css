@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+@theme {
+  /* Near-black terminal base */
+  --color-terminal: #020604;
+  --color-terminal-raised: #04120a;
+
+  /* Phosphor green — the Matrix side of the palette */
+  --color-phosphor: #00ff41;
+  --color-phosphor-bright: #d7ffe0;
+  --color-phosphor-dim: #0d8a34;
+
+  /* Cold blue/white — reserved for later "real world" contrast */
+  --color-cold: #a9c7e8;
+
+  /* Construct — the white loading-program void (inverse of the terminal) */
+  --color-construct: #f2f5f3;
+  --color-ink: #10201a;
+  --color-ink-soft: #47564f;
+  --color-loaded: #067a3e;
+
+  --font-terminal: "Share Tech Mono", "Cascadia Mono", Consolas, ui-monospace,
+    "MS Gothic", monospace;
+}
+
+@layer base {
+  html {
+    background-color: var(--color-terminal);
+  }
+
+  body {
+    @apply bg-terminal font-terminal text-phosphor antialiased;
+  }
+
+  ::selection {
+    background-color: var(--color-phosphor);
+    color: var(--color-terminal);
+  }
+}
+
+/* Soft phosphor bloom for headings and key labels. */
+.glow {
+  text-shadow: 0 0 8px rgb(0 255 65 / 0.55), 0 0 24px rgb(0 255 65 / 0.25);
+}
+
+/*
+ * Light CRT treatment: static scanlines + vignette in one fixed overlay.
+ * Pure CSS backgrounds — no animation, no repaint cost.
+ */
+.crt-overlay {
+  background-image: repeating-linear-gradient(
+      0deg,
+      rgb(0 0 0 / 0.18) 0px,
+      rgb(0 0 0 / 0.18) 1px,
+      transparent 1px,
+      transparent 3px
+    ),
+    radial-gradient(
+      ellipse at center,
+      transparent 58%,
+      rgb(0 0 0 / 0.5) 100%
+    );
+}
+
+/*
+ * The Construct's white void: paper-white with a faint measurement grid,
+ * replacing the rain layer on /construct routes.
+ */
+.construct-void {
+  background-color: var(--color-construct);
+  background-image: linear-gradient(rgb(16 32 26 / 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(16 32 26 / 0.05) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* Disorienting camera jitter while plummeting (rooftop fail). */
+.fall-shake {
+  animation: fall-shake 0.11s linear infinite;
+}
+
+@keyframes fall-shake {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-7px, 5px); }
+  50% { transform: translate(6px, -4px); }
+  75% { transform: translate(-4px, -6px); }
+  100% { transform: translate(5px, 6px); }
+}
+
+/* Blinking block cursor for terminal prompts. */
+.cursor-blink {
+  animation: cursor-blink 1.1s steps(1) infinite;
+}
+
+@keyframes cursor-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}

@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" font-family="Consolas, 'Courier New', monospace">
+  <style>
+    .box { fill: #ffffff; stroke: #10201a; stroke-width: 1.5; }
+    .accent { fill: #ffffff; stroke: #067a3e; stroke-width: 2; }
+    .name { fill: #10201a; font-size: 14px; letter-spacing: 1.5px; }
+    .big { fill: #067a3e; font-size: 22px; letter-spacing: 1px; }
+    .sub { fill: #47564f; font-size: 11.5px; }
+    .wire { stroke: #47564f; stroke-width: 1.4; fill: none; marker-end: url(#arrow); }
+  </style>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#47564f" />
+    </marker>
+  </defs>
+
+  <rect class="accent" x="60" y="80" width="220" height="96" />
+  <text class="name" x="170" y="112" text-anchor="middle">FOCUS BLOCK</text>
+  <text class="big" x="170" y="142" text-anchor="middle">25 MIN</text>
+  <text class="sub" x="170" y="162" text-anchor="middle">one task · zero inputs</text>
+
+  <path class="wire" d="M280 128 H420" />
+  <text class="sub" x="350" y="118" text-anchor="middle">timer rings</text>
+
+  <rect class="box" x="420" y="80" width="220" height="96" />
+  <text class="name" x="530" y="112" text-anchor="middle">SHORT BREAK</text>
+  <text class="big" x="530" y="142" text-anchor="middle">5 MIN</text>
+  <text class="sub" x="530" y="162" text-anchor="middle">stand · water · no feeds</text>
+
+  <path class="wire" d="M530 176 V236 H330" />
+  <text class="sub" x="530" y="212" text-anchor="middle">×4 cycles</text>
+
+  <rect class="box" x="110" y="212" width="220" height="52" />
+  <text class="name" x="220" y="234" text-anchor="middle">CYCLE COUNT ▢▢▢▢</text>
+  <text class="sub" x="220" y="252" text-anchor="middle">after the 4th pomodoro…</text>
+
+  <path class="wire" d="M220 264 V304 H300" />
+
+  <rect class="accent" x="300" y="280" width="240" height="64" />
+  <text class="name" x="420" y="306" text-anchor="middle">LONG BREAK</text>
+  <text class="big" x="420" y="332" text-anchor="middle" font-size="18">15–30 MIN</text>
+
+  <path class="wire" d="M540 312 H660 V128 H288" />
+  <text class="sub" x="664" y="220" text-anchor="middle" transform="rotate(90 664 220)">reset · begin again</text>
+</svg>

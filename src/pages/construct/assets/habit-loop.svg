@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 420" font-family="Consolas, 'Courier New', monospace">
+  <style>
+    .box { fill: #ffffff; stroke: #10201a; stroke-width: 1.5; }
+    .name { fill: #10201a; font-size: 15px; letter-spacing: 2px; }
+    .sub { fill: #47564f; font-size: 11.5px; }
+    .law { fill: #067a3e; font-size: 11.5px; letter-spacing: 1px; }
+    .center { fill: #47564f; font-size: 12px; letter-spacing: 3px; }
+    .wire { stroke: #47564f; stroke-width: 1.4; fill: none; marker-end: url(#arrow); }
+  </style>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#47564f" />
+    </marker>
+  </defs>
+
+  <text class="center" x="360" y="204" text-anchor="middle">THE HABIT LOOP</text>
+  <text class="sub" x="360" y="224" text-anchor="middle">runs whether you designed it or not</text>
+
+  <rect class="box" x="250" y="24" width="220" height="72" />
+  <text class="name" x="360" y="52" text-anchor="middle">1 · CUE</text>
+  <text class="sub" x="360" y="70" text-anchor="middle">the trigger that starts it</text>
+  <text class="law" x="360" y="86" text-anchor="middle">law: make it OBVIOUS</text>
+
+  <rect class="box" x="480" y="170" width="220" height="72" />
+  <text class="name" x="590" y="198" text-anchor="middle">2 · CRAVING</text>
+  <text class="sub" x="590" y="216" text-anchor="middle">wanting the change of state</text>
+  <text class="law" x="590" y="232" text-anchor="middle">law: make it ATTRACTIVE</text>
+
+  <rect class="box" x="250" y="320" width="220" height="72" />
+  <text class="name" x="360" y="348" text-anchor="middle">3 · RESPONSE</text>
+  <text class="sub" x="360" y="366" text-anchor="middle">the behavior itself</text>
+  <text class="law" x="360" y="382" text-anchor="middle">law: make it EASY</text>
+
+  <rect class="box" x="20" y="170" width="220" height="72" />
+  <text class="name" x="130" y="198" text-anchor="middle">4 · REWARD</text>
+  <text class="sub" x="130" y="216" text-anchor="middle">the payoff the brain records</text>
+  <text class="law" x="130" y="232" text-anchor="middle">law: make it SATISFYING</text>
+
+  <path class="wire" d="M470 60 H590 V166" />
+  <path class="wire" d="M590 242 V356 H474" />
+  <path class="wire" d="M250 356 H130 V246" />
+  <path class="wire" d="M130 166 V60 H246" />
+</svg>
