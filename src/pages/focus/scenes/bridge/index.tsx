@@ -6,31 +6,37 @@ import { useAmbience } from '../../../../engine/audio';
 import type { FocusSceneComponentProps } from '../../scenes';
 import { BRIDGE_FRAG } from './shader';
 import { createSignAtlas } from './signTexture';
+import { loadBridgeTextures } from './textures';
 
-/** Standing on the sidewalk under the girders, street ahead. */
-const KERB = new Vector3(0, 1.62, -0.4);
+/** First person as Neo — a pedestrian on the RIGHT FOOTPATH under the arch,
+ *  waiting for the pickup, looking down the four-lane roadway. */
+const KERB = new Vector3(7.4, 1.6, 3.2);
 
-/** Car pass tuning: ~14s crossing, first soon, then irregular. */
-const CAR_SPEED = 9; // m/s — an unhurried roll through the underpass
-const CAR_FROM = 60;
-const FIRST_PASS_AT = 20;
+/** Car pass tuning: the Lincoln rolls through the near lane. */
+const CAR_SPEED = 6; // m/s — an unhurried roll through
+const CAR_SPAN = 24; // metres of travel across the visible road
+const FIRST_PASS_AT = 16;
 const PASS_EVERY = () => 45 + Math.random() * 50;
 
 export default function BridgeScene({ onExit }: FocusSceneComponentProps) {
   // 0 = steady rain, 1 = downpour.
   const stormTarget = useRef(0);
-  const car = useRef({ nextAt: FIRST_PASS_AT, active: false, t0: 0, dir: 1, now: 0 });
+  const car = useRef({ nextAt: FIRST_PASS_AT, active: false, t0: 0, dir: 1 });
+  const tex = useMemo(() => loadBridgeTextures(), []);
 
   const uniforms = useMemo<Record<string, IUniform>>(
     () => ({
       uCamPos: { value: KERB.clone() },
       uStorm: { value: 0 },
       uCarOn: { value: 0 },
-      uCarX: { value: 10000 },
+      uCarZ: { value: 10000 },
       uCarDir: { value: 1 },
       uSign: { value: createSignAtlas() },
+      uAsphalt: tex.asphalt,
+      uConcrete: tex.concrete,
+      uBrick: tex.brick,
     }),
-    [],
+    [tex],
   );
 
   const bed = useAmbience('bridge');
@@ -42,7 +48,6 @@ export default function BridgeScene({ onExit }: FocusSceneComponentProps) {
       bed.set('storm', storm.value as number);
 
       const c = car.current;
-      c.now = time;
       if (!c.active && time >= c.nextAt) {
         c.active = true;
         c.t0 = time;
@@ -52,14 +57,15 @@ export default function BridgeScene({ onExit }: FocusSceneComponentProps) {
       }
       if (c.active) {
         const travelled = (time - c.t0) * CAR_SPEED;
-        const x = (-CAR_FROM + travelled) * c.dir;
-        uniforms.uCarX.value = x;
-        const ax = Math.abs(x);
-        bed.set('car', 1 / (1 + (ax / 20) * (ax / 20)));
-        if (travelled > CAR_FROM * 2) {
+        // +dir approaches from the far mouth (headlights); -dir recedes into it.
+        const z = c.dir > 0 ? -14 + travelled : 10 - travelled;
+        uniforms.uCarZ.value = z;
+        const dz = Math.abs(z - KERB.z);
+        bed.set('car', 1 / (1 + (dz / 9) * (dz / 9)));
+        if (travelled > CAR_SPAN) {
           c.active = false;
           uniforms.uCarOn.value = 0;
-          uniforms.uCarX.value = 10000;
+          uniforms.uCarZ.value = 10000;
           c.nextAt = time + PASS_EVERY();
           bed.set('car', 0);
         }
@@ -71,7 +77,7 @@ export default function BridgeScene({ onExit }: FocusSceneComponentProps) {
   const onAdjust = useCallback(() => {
     stormTarget.current = stormTarget.current > 0.5 ? 0 : 1;
     return stormTarget.current > 0.5
-      ? 'the sky opens up — rain sheets off the deck in one long curtain'
+      ? 'the sky opens up — water sheets off the deck in one long curtain'
       : 'the downpour eases back to a steady, patient rain';
   }, []);
 
@@ -81,33 +87,36 @@ export default function BridgeScene({ onExit }: FocusSceneComponentProps) {
         summonCar: () => {
           car.current.nextAt = 0;
         },
-        parkCar: (x: number | null) => {
-          if (x === null) {
+        parkCar: (z: number | null) => {
+          if (z === null) {
             uniforms.uCarOn.value = car.current.active ? 1 : 0;
           } else {
             car.current.nextAt = Number.POSITIVE_INFINITY;
             car.current.active = false;
             uniforms.uCarOn.value = 1;
-            uniforms.uCarX.value = x;
+            uniforms.uCarZ.value = z;
           }
         },
         setStorm: (v: number) => {
           stormTarget.current = v;
         },
-        carX: () => uniforms.uCarX.value as number,
+        carZ: () => uniforms.uCarZ.value as number,
       };
     }
   }, [uniforms]);
 
   useEffect(() => {
     const sign = uniforms.uSign.value as { dispose: () => void };
-    return () => sign.dispose();
-  }, [uniforms]);
+    return () => {
+      sign.dispose();
+      tex.dispose();
+    };
+  }, [uniforms, tex]);
 
   return (
     <ShaderSceneShell
       title="ADAMS STREET"
-      yaw={Math.PI - 1.05}
+      yaw={0.16}
       pitch={-0.03}
       onExit={onExit}
       onAdjust={onAdjust}

@@ -17,7 +17,7 @@ npm-debug.log*
 
 # reference
 HANDOFF.md
-README.md
+readme_local.md
 
 # editor
 .vscode/*

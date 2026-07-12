@@ -7,10 +7,17 @@ import { SiteFooter } from './SiteFooter';
  * Persistent chrome for every route: one shared ambient rain layer, a dimming
  * veil (lighter on the landing page so the rain reads full-bleed), CRT
  * overlay, terminal nav, and the attribution footer.
+ *
+ * The CRT overlay (scanlines + vignette) is deliberately DROPPED on the
+ * immersive Locations/Focus scene routes (`/locations/:id`, `/focus/:id`):
+ * those aim for accurate rendered visuals and the old-monitor treatment fights
+ * them. It stays on Operator, Construct, the hubs, and every terminal page,
+ * where the CRT look is the point.
  */
 export function AppShell() {
   const { pathname } = useLocation();
   const isLanding = pathname === '/';
+  const isImmersiveScene = /^\/(locations|focus)\/[^/]+/.test(pathname);
 
   return (
     <div className="relative min-h-screen">
@@ -31,7 +38,9 @@ export function AppShell() {
         <SiteFooter />
       </div>
 
-      <div aria-hidden="true" className="crt-overlay pointer-events-none fixed inset-0 z-20" />
+      {!isImmersiveScene && (
+        <div aria-hidden="true" className="crt-overlay pointer-events-none fixed inset-0 z-20" />
+      )}
     </div>
   );
 }
