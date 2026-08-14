@@ -8,4 +8,6 @@ This is an unofficial fan project, not affiliated with or endorsed by the creato
 
 All references are for tribute purposes only. © 2026 Kiarash Farajzadehahary
 
+⚖ Licensed under the [KFA Source-Available License 1.0](LICENSE).
+
 Made with ❤️ for those who know there is no spoon — only [Fork](https://github.com/kiarashfa/codegreen/fork).
