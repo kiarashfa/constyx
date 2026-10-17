@@ -60,7 +60,7 @@ export function RooftopHud({ phase, fails, maxFails, cleared }: RooftopHudProps)
           chargeStatus.current.textContent = '▶ RELEASE NOW ◀';
           chargeStatus.current.className = 'glow text-phosphor';
         } else {
-          chargeStatus.current.textContent = 'OVERCHARGING —';
+          chargeStatus.current.textContent = 'OVERCHARGING';
           chargeStatus.current.className = 'text-[#ff5f56]';
         }
       }
@@ -143,7 +143,7 @@ export function RooftopHud({ phase, fails, maxFails, cleared }: RooftopHudProps)
             </p>
             <p className="mt-3 text-xs leading-relaxed text-phosphor/60">
               Ten hard resets in one session strains the residual self-image. Breathe.
-              Jack back in from the hub whenever you're ready — the roof isn't going anywhere.
+              Jack back in from the hub whenever you're ready. The roof isn't going anywhere.
             </p>
           </div>
         </div>

@@ -46,7 +46,7 @@ export function CatalogOverlay({ loadedId, onLoad, onClose }: CatalogOverlayProp
             onClick={close}
             className="text-[11px] tracking-[0.25em] text-phosphor/50 hover:text-phosphor"
           >
-            [ CLOSE — ESC ]
+            [ CLOSE · ESC ]
           </button>
         </header>
 
@@ -127,7 +127,7 @@ export function CatalogOverlay({ loadedId, onLoad, onClose }: CatalogOverlayProp
               </button>
             </div>
             <p className="mt-2 text-[10px] leading-relaxed text-phosphor/40">
-              reference notes written for this console from standard firearms literature —
+              reference notes written for this console from standard firearms literature:
               manufacturer histories and military adoption records. range is hot down the aisle.
             </p>
           </article>

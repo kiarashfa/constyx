@@ -48,8 +48,8 @@ export function OperatorPage() {
   return (
     <>
       <PageHeader code="01" title="OPERATOR">
-        Live feed from inside the Matrix. Anomalies surface as columns that fall wrong —
-        target them and make the right call before the trace warms up.
+        Live feed from inside the Matrix. Anomalies surface as columns that fall wrong.
+        Target them and make the right call before the trace warms up.
       </PageHeader>
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">

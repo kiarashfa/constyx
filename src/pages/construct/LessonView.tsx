@@ -80,7 +80,7 @@ export function LessonView({ lesson, progress }: LessonViewProps) {
                 ))}
               </ul>
               <p className="mt-3 text-[11px] text-ink-soft/70">
-                Written for this console from the sources above — research input, not copied text.
+                Written for this console from the sources above: research input, not copied text.
               </p>
             </footer>
           )}

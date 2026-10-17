@@ -24,11 +24,9 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      # Build with the repo name as base so absolute asset URLs work from any
-      # route depth, then copy index.html to 404.html: GitHub Pages serves it
-      # for unknown paths, the SPA boots, and the router resolves the route.
-      - run: npm run build -- --base=/${{ github.event.repository.name }}/
-      - run: cp dist/index.html dist/404.html
+      # The build serves from SITE.basePath (src/site/config.ts) and writes one
+      # HTML file per route plus a 404.html, sitemap, robots.txt, and manifest.
+      - run: npm run build
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

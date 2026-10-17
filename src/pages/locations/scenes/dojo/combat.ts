@@ -26,9 +26,9 @@ export const ATTACKS: Record<AttackKind, AttackDef> = {
     practiceTelegraphMs: 2400,
     sparringTelegraphMs: 950,
     damage: 15,
-    callout: 'LOW SWEEP — get over it [SPACE]',
-    readText: '✓ swept nothing but air — you were already gone',
-    hitText: '✗ the sweep took your legs — that one needed [SPACE]',
+    callout: 'LOW SWEEP: get over it [SPACE]',
+    readText: '✓ swept nothing but air; you were already gone',
+    hitText: '✗ the sweep took your legs; that one needed [SPACE]',
   },
   heavy: {
     kind: 'heavy',
@@ -37,9 +37,9 @@ export const ATTACKS: Record<AttackKind, AttackDef> = {
     practiceTelegraphMs: 2400,
     sparringTelegraphMs: 1050,
     damage: 18,
-    callout: 'HEAVY PALM — brace for it [RIGHT-CLICK]',
-    readText: '✓ braced — the palm broke on your guard',
-    hitText: '✗ the palm landed clean — that one needed [RIGHT-CLICK]',
+    callout: 'HEAVY PALM: brace for it [RIGHT-CLICK]',
+    readText: '✓ braced: the palm broke on your guard',
+    hitText: '✗ the palm landed clean; that one needed [RIGHT-CLICK]',
   },
   lunge: {
     kind: 'lunge',
@@ -48,9 +48,9 @@ export const ATTACKS: Record<AttackKind, AttackDef> = {
     practiceTelegraphMs: 2800,
     sparringTelegraphMs: 1500,
     damage: 12,
-    callout: 'OVERCOMMITTED LUNGE — punish the opening [LEFT-CLICK]',
-    readText: '★ COUNTERED — you hit him through the opening',
-    hitText: '✗ the opening closed on you — punish it with [LEFT-CLICK]',
+    callout: 'OVERCOMMITTED LUNGE: punish the opening [LEFT-CLICK]',
+    readText: '★ COUNTERED: you hit him through the opening',
+    hitText: '✗ the opening closed on you; punish it with [LEFT-CLICK]',
   },
 };
 

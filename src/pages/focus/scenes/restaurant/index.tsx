@@ -35,7 +35,7 @@ export default function RestaurantScene({ onExit }: FocusSceneComponentProps) {
   const onAdjust = useCallback(() => {
     dimTarget.current = dimTarget.current > 0.5 ? 0 : 1;
     return dimTarget.current > 0.5
-      ? 'the maître d’ lowers the chandeliers — candlelight takes the room'
+      ? 'the maître d’ lowers the chandeliers; candlelight takes the room'
       : 'the chandeliers come back up; the room brightens around the conversation';
   }, []);
 

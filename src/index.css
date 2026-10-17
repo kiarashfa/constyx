@@ -1,4 +1,6 @@
 @import "tailwindcss";
+/* Self-hosted Share Tech Mono (latin, 400) — the only web font. */
+@import "@fontsource/share-tech-mono/latin-400.css";
 
 @theme {
   /* Near-black terminal base */

@@ -16,34 +16,34 @@
   <line class="rung" x1="80" y1="70" x2="130" y2="70" />
   <text class="name" x="140" y="66">BACK CONTROL</text>
   <text class="pts" x="360" y="66">+4 pts</text>
-  <text class="sub" x="140" y="83">chest to back, hooks in — they can't see you or hit you</text>
+  <text class="sub" x="140" y="83">chest to back, hooks in; they can't see you or hit you</text>
 
   <line class="rung" x1="80" y1="124" x2="130" y2="124" />
   <text class="name" x="140" y="120">MOUNT</text>
   <text class="pts" x="360" y="120">+4 pts</text>
-  <text class="sub" x="140" y="137">seated on torso — gravity works for you</text>
+  <text class="sub" x="140" y="137">seated on torso: gravity works for you</text>
 
   <line class="rung" x1="80" y1="178" x2="130" y2="178" />
   <text class="name" x="140" y="174">SIDE CONTROL / KNEE-ON-BELLY</text>
   <text class="pts" x="450" y="174">pass +3 / kob +2</text>
-  <text class="sub" x="140" y="191">past the legs, chest pressure — the guard has been beaten</text>
+  <text class="sub" x="140" y="191">past the legs, chest pressure: the guard has been beaten</text>
 
   <line class="rung" x1="80" y1="232" x2="130" y2="232" />
   <text class="name" x="140" y="228">HALF GUARD</text>
-  <text class="sub" x="140" y="245">one leg trapped — contested ground, both players have options</text>
+  <text class="sub" x="140" y="245">one leg trapped: contested ground, both players have options</text>
 
   <line class="rung" x1="80" y1="286" x2="130" y2="286" />
   <text class="name" x="140" y="282">GUARD</text>
   <text class="pts" x="360" y="282">sweep +2</text>
-  <text class="sub" x="140" y="299">on your back, legs between you and them — the great equalizer</text>
+  <text class="sub" x="140" y="299">on your back, legs between you and them: the great equalizer</text>
 
   <line class="rung" x1="80" y1="340" x2="130" y2="340" />
   <text class="name" x="140" y="336">TURTLE</text>
-  <text class="sub" x="140" y="353">on all fours, elbows tight — surviving, exposed to back takes</text>
+  <text class="sub" x="140" y="353">on all fours, elbows tight: surviving, exposed to back takes</text>
 
   <line class="rung" x1="80" y1="394" x2="130" y2="394" />
   <text class="name" x="140" y="390">FLATTENED OUT / BACK TAKEN</text>
-  <text class="sub" x="140" y="407">where the choke lives — escape or tap</text>
+  <text class="sub" x="140" y="407">where the choke lives: escape or tap</text>
 
   <text class="sub" x="360" y="448" text-anchor="middle">position before submission :: climb the ladder, never trade rungs for a maybe</text>
 </svg>

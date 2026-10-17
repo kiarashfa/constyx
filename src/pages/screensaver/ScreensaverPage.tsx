@@ -61,7 +61,7 @@ export function ScreensaverPage() {
       downloadScreensaver(config);
       showToast(`EXPORTED // operator-screensaver.html // ~${kb} KB`);
     } catch {
-      showToast('EXPORT FAILED — SEE CONSOLE');
+      showToast('EXPORT FAILED: SEE CONSOLE');
     } finally {
       setExporting(false);
     }
@@ -79,7 +79,7 @@ export function ScreensaverPage() {
   return (
     <>
       <PageHeader code="05" title="SCREENSAVER">
-        Tune your own rain — glyphs, palette, speed, density — and watch it change live.
+        Tune your own rain (glyphs, palette, speed, density) and watch it change live.
         When it looks right, take it with you: export a single standalone HTML file that runs
         the real engine full-screen, anywhere. The code follows you out.
       </PageHeader>
@@ -255,7 +255,7 @@ export function ScreensaverPage() {
             </button>
             <div className="flex items-center justify-between">
               <p className="max-w-[240px] text-[10px] leading-relaxed text-phosphor/40">
-                Exports one standalone .html — no network, no install. Open it, or point an
+                Exports one standalone .html: no network, no install. Open it, or point an
                 OS screensaver tool at it.
               </p>
               <button

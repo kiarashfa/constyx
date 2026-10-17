@@ -1,5 +1,4 @@
 # dependencies
-assets-userprovided
 node_modules
 dist
 dist-ssr
@@ -12,12 +11,14 @@ logs
 *.log
 npm-debug.log*
 
+# environment
+.env
+
 # dev tooling
 .claude/
 
-# reference
-HANDOFF.md
-readme_local.md
+# local-only notes and owner reference assets
+local/
 
 # editor
 .vscode/*

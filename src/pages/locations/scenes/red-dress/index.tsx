@@ -164,7 +164,7 @@ export default function RedDressScene({ onExit }: SceneComponentProps) {
       setEggReady(false);
       storeRef.current?.teleport(SPAWN, 0);
       setPhase('street');
-      storeRef.current?.toast('Reloaded. Same street — different watcher.', 3200);
+      storeRef.current?.toast('Reloaded. Same street, different watcher.', 3200);
     }, 1900);
   }, []);
 

@@ -514,7 +514,7 @@ export default function BulletTimeScene({ onExit }: SceneComponentProps) {
         sim.current.avatarResetAt = impact + 0.55;
         if (dir === 'back') sweepRef.current = 1;
         flashFor('clean');
-        feedbackFor(dir === 'back' ? 'CLEAN — the air remembers' : 'CLEAN', 'good', 1100);
+        feedbackFor(dir === 'back' ? 'CLEAN: the air remembers' : 'CLEAN', 'good', 1100);
       } else {
         // Wrong lean: you moved INTO it. Bullet finishes its flight, then hits.
         target.resolved = 'doomed';

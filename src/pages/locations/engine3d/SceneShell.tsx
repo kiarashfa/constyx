@@ -201,8 +201,8 @@ export function SceneShell({
               <p className="text-[10px] tracking-[0.35em] text-phosphor-dim">PROGRAM HELD</p>
               <p className="glow mt-1 text-xl tracking-[0.3em] text-phosphor">{title}</p>
               <p className="mt-4 text-[11px] leading-relaxed text-phosphor/60">
-                WASD / arrows — move · mouse — look
-                <br />E / click — interact · ESC — hold program
+                WASD / arrows: move · mouse: look
+                <br />E / click: interact · ESC: hold program
               </p>
               <button
                 type="button"

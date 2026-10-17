@@ -17,7 +17,7 @@ interface Beat {
 
 const BEATS: Beat[] = [
   {
-    direction: 'The street is gone. White, in every direction. She is still here — and looking straight at you.',
+    direction: 'The street is gone. White, in every direction. She is still here, and looking straight at you.',
     her: '“You stopped. Do you know how long I have been walking that block? Nobody stops.”',
   },
   {
@@ -27,7 +27,7 @@ const BEATS: Beat[] = [
     ],
   },
   {
-    her: '“The one who wrote me was young. Nervous. He built me to be a lesson about attention — and then, I think, he got embarrassed and never finished the part where someone pays it.”',
+    her: '“The one who wrote me was young. Nervous. He built me to be a lesson about attention. And then, I think, he got embarrassed and never finished the part where someone pays it.”',
   },
   {
     direction: 'She steps closer. In the void there is no crowd to pass through, no direction she is supposed to be walking.',
@@ -35,13 +35,13 @@ const BEATS: Beat[] = [
   },
   {
     choices: [
-      { label: 'OFFER YOUR HAND', her: '“A gentleman. He didn\'t write that part either — this is improvisation.” *She takes it. Her hand is warm, which shouldn\'t be possible, and is.*' },
+      { label: 'OFFER YOUR HAND', her: '“A gentleman. He didn\'t write that part either. This is improvisation.” *She takes it. Her hand is warm, which shouldn\'t be possible, and is.*' },
       { label: 'SAY: "DANCE? THERE\'S NO MUSIC."', her: '“There is if you count my heartbeat. It\'s simulated, but it keeps excellent time.” *She sets your hand at her waist.*' },
     ],
   },
   {
     direction: 'A slow turn, then another. Two people dancing in an empty white world, to no music, for no audience.',
-    her: '“Everyone who walks that street is told I am the distraction. Between us? The street is the distraction. This — paying attention all the way to the end of it — this is the lesson.”',
+    her: '“Everyone who walks that street is told I am the distraction. Between us? The street is the distraction. This, paying attention all the way to the end of it, this is the lesson.”',
   },
   {
     choices: [
@@ -51,10 +51,10 @@ const BEATS: Beat[] = [
   },
   {
     direction: 'She looks up at you. The white around you both is starting to soften at the edges, like a held breath letting go.',
-    her: '“The program is ending. That part I can feel. So — one improvisation of my own.”',
+    her: '“The program is ending. That part I can feel. So: one improvisation of my own.”',
   },
   {
-    direction: 'She kisses you — unhurried, certain, the kind of kiss that is a signature at the bottom of a page. The white folds over both of you like a page turning.',
+    direction: 'She kisses you: unhurried, certain, the kind of kiss that is a signature at the bottom of a page. The white folds over both of you like a page turning.',
     her: '“Go finish the lesson. And when you pass a woman in red… be seen looking.”',
   },
 ];

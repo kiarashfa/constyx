@@ -1,14 +1,9 @@
 import { NavLink } from 'react-router-dom';
+import { SECTIONS } from '../site/routes';
 
 const LINKS = [
   { to: '/', code: '00', label: 'CONSOLE', end: true },
-  { to: '/operator', code: '01', label: 'OPERATOR' },
-  { to: '/construct', code: '02', label: 'CONSTRUCT' },
-  { to: '/locations', code: '03', label: 'LOCATIONS' },
-  { to: '/focus', code: '04', label: 'FOCUS' },
-  { to: '/screensaver', code: '05', label: 'SCREENSAVER' },
-  { to: '/ascii', code: '06', label: 'ASCII' },
-  { to: '/code-vision', code: '07', label: 'CODE VISION' },
+  ...SECTIONS.map(({ path, code, label }) => ({ to: path, code, label, end: false })),
 ];
 
 /** Terminal-styled persistent nav: a prompt line plus program "slots". */

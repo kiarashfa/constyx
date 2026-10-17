@@ -63,7 +63,7 @@ export function DownloadSequence({ lesson, onComplete }: DownloadSequenceProps) 
         {!loaded ? (
           <>
             <p className="mt-6 text-xs tracking-[0.3em] text-ink-soft">
-              DOWNLOADING PROGRAM — {lesson.sizeLabel}
+              DOWNLOADING PROGRAM :: {lesson.sizeLabel}
             </p>
             <p className="mt-3 font-bold leading-none text-loaded" aria-hidden="true">
               {'▓'.repeat(filled)}

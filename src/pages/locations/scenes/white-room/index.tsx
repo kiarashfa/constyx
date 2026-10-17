@@ -140,7 +140,7 @@ function ChairWithInspect(props: GroupProps) {
       label="INSPECT CHAIR"
       radius={2.3}
       onInteract={() =>
-        store.toast('Oxblood leather, high back — older than the simulation pretending to contain it.')
+        store.toast('Oxblood leather, high back. Older than the simulation pretending to contain it.')
       }
     >
       <WingbackChair {...props} />

@@ -47,7 +47,7 @@ export default function OfficeScene({ onExit }: FocusSceneComponentProps) {
   const onAdjust = useCallback(() => {
     screenTarget.current = screenTarget.current > 0.5 ? 0 : 1;
     return screenTarget.current > 0.5
-      ? 'the screensaver kicks in — something about it holds your eye'
+      ? 'the screensaver kicks in; something about it holds your eye'
       : 'back to the quarterlies';
   }, []);
 

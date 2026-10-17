@@ -1,5 +1,7 @@
+import { useLayoutEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { MatrixRain, ambientRainConfig } from '../engine/rain';
+import { getRouteMeta } from '../site/routes';
 import { TerminalNav } from './TerminalNav';
 import { SiteFooter } from './SiteFooter';
 
@@ -13,11 +15,18 @@ import { SiteFooter } from './SiteFooter';
  * those aim for accurate rendered visuals and the old-monitor treatment fights
  * them. It stays on Operator, Construct, the hubs, and every terminal page,
  * where the CRT look is the point.
+ *
+ * It also keeps the tab title in step with the route on client-side
+ * navigation (the per-route HTML the build emits covers first loads).
  */
 export function AppShell() {
   const { pathname } = useLocation();
   const isLanding = pathname === '/';
   const isImmersiveScene = /^\/(locations|focus)\/[^/]+/.test(pathname);
+
+  useLayoutEffect(() => {
+    document.title = getRouteMeta(pathname).title;
+  }, [pathname]);
 
   return (
     <div className="relative min-h-screen">

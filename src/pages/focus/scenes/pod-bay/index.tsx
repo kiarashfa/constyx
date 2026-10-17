@@ -39,8 +39,8 @@ export default function PodBayScene({ onExit }: FocusSceneComponentProps) {
   const onAdjust = useCallback(() => {
     cycleTarget.current = cycleTarget.current > 0.5 ? 0 : 1;
     return cycleTarget.current > 0.5
-      ? 'the grid surges — lightning walks the towers'
-      : 'the grid settles — the fields dim to a red murmur';
+      ? 'the grid surges: lightning walks the towers'
+      : 'the grid settles: the fields dim to a red murmur';
   }, []);
 
   useEffect(() => {

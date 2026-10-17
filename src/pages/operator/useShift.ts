@@ -153,8 +153,8 @@ export function useShift(getEngine: () => RainEngine | null) {
       setCareer(updated);
       pushLog(
         outcome === 'traced'
-          ? '■ TRACE LOCK — hardline compromised, shift aborted'
-          : '■ SHIFT COMPLETE — feed handed to next operator',
+          ? '■ TRACE LOCK: hardline compromised, shift aborted'
+          : '■ SHIFT COMPLETE: feed handed to next operator',
         outcome === 'traced' ? 'bad' : 'info',
       );
       setPhase('ended');
@@ -288,7 +288,7 @@ export function useShift(getEngine: () => RainEngine | null) {
 
   const startShift = useCallback(() => {
     sim.current = freshSim();
-    pushLog('■ SHIFT START — watch the code, not the HUD', 'info');
+    pushLog('■ SHIFT START: watch the code, not the HUD', 'info');
     setPhase('running');
     bump();
   }, [bump, pushLog]);

@@ -29,7 +29,7 @@ export const FOCUS_SCENES: FocusSceneDef[] = [
     id: 'mobil-ave',
     title: 'MOBIL AVE',
     blurb:
-      'A station between worlds. Cream tile, green trim, an empty bench — and every couple of minutes, the train comes through.',
+      'A station between worlds. Cream tile, green trim, an empty bench. Every couple of minutes, the train comes through.',
     status: 'online',
     load: () => import('./scenes/mobil-ave'),
   },

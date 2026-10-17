@@ -35,8 +35,8 @@ export default function ArchitectScene({ onExit }: FocusSceneComponentProps) {
   const onAdjust = useCallback(() => {
     syncTarget.current = syncTarget.current > 0.5 ? 0 : 1;
     return syncTarget.current > 0.5
-      ? 'concordantly — every screen turns to the same feed'
-      : 'vis-à-vis — the feeds scatter back to their own business';
+      ? 'concordantly: every screen turns to the same feed'
+      : 'vis-à-vis: the feeds scatter back to their own business';
   }, []);
 
   useEffect(() => {

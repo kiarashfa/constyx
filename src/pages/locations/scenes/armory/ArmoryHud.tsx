@@ -33,7 +33,7 @@ export function ArmoryHud({ weapon, score, rushing }: ArmoryHudProps) {
             <p className="text-phosphor/50">{CATEGORY_LABEL[weapon.category]}</p>
           </>
         ) : (
-          <p className="text-phosphor/45">no weapon loaded — open the manifest [M]</p>
+          <p className="text-phosphor/45">no weapon loaded: open the manifest [M]</p>
         )}
       </div>
 

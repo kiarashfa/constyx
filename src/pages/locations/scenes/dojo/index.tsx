@@ -211,7 +211,7 @@ function StoreTap({ onStore }: { onStore: (store: SceneStore) => void }) {
 /** The bow anchor rides inside the opponent's moving root (dynamic focus). */
 function BowAnchor({ disabled, onBow }: { disabled: boolean; onBow: () => void }) {
   return (
-    <Interactable dynamic label="BOW — BEGIN PRACTICE" radius={2.6} disabled={disabled} onInteract={onBow}>
+    <Interactable dynamic label="BOW: BEGIN PRACTICE" radius={2.6} disabled={disabled} onInteract={onBow}>
       <mesh position={[0, 1.3, 0]} visible={false}>
         <boxGeometry args={[0.1, 0.1, 0.1]} />
       </mesh>
@@ -441,7 +441,7 @@ export default function DojoScene({ onExit }: SceneComponentProps) {
     setPhase('practice');
     ctl.current.engaged = true;
     setMode('bow');
-    setCallout({ text: 'He bows. The forms begin — watch, then answer.', tone: 'info' });
+    setCallout({ text: 'He bows. The forms begin. Watch, then answer.', tone: 'info' });
     later(() => startAttackRef.current(), 1600);
   }, [clearTimers, later]);
 
@@ -456,7 +456,7 @@ export default function DojoScene({ onExit }: SceneComponentProps) {
     setPhase('sparring');
     ctl.current.engaged = true;
     setMode('guard');
-    setCallout({ text: 'Sparring. No more callouts — read him.', tone: 'info' });
+    setCallout({ text: 'Sparring. No more callouts. Read him.', tone: 'info' });
     game.current.roundStart = performance.now();
     later(() => startAttackRef.current(), 1400);
   }, [clearTimers, later]);

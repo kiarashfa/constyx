@@ -84,7 +84,7 @@ export function ShaderSceneShell({
   const toggleCodeVision = useMemo(
     () => () =>
       setCodeVision((on) => {
-        showToast(on ? 'code vision — released' : 'code vision — engaged', 2600);
+        showToast(on ? 'code vision: released' : 'code vision: engaged', 2600);
         return !on;
       }),
     [showToast],
@@ -104,7 +104,7 @@ export function ShaderSceneShell({
   useEffect(() => {
     if (locked && firstLockRef.current) {
       firstLockRef.current = false;
-      if (adjustHint) showToast(`click — ${adjustHint}  ·  V — code vision`, 4200);
+      if (adjustHint) showToast(`click: ${adjustHint}  ·  V: code vision`, 4200);
     }
   }, [locked, adjustHint, showToast]);
 
@@ -149,17 +149,17 @@ export function ShaderSceneShell({
             <p className="text-[10px] tracking-[0.35em] text-phosphor-dim">PROGRAM HELD</p>
             <p className="glow mt-1 text-xl tracking-[0.3em] text-phosphor">{title}</p>
             <p className="mt-4 text-[11px] leading-relaxed text-phosphor/60">
-              mouse — look around
+              mouse: look around
               {adjustHint && (
                 <>
                   <br />
-                  click — {adjustHint}
+                  click: {adjustHint}
                 </>
               )}
               <br />
-              V — code vision {codeVision ? '(on)' : ''}
+              V: code vision {codeVision ? '(on)' : ''}
               <br />
-              ESC — hold program
+              ESC: hold program
             </p>
             <button
               type="button"

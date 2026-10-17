@@ -10,7 +10,7 @@ export function LocationsPage() {
     <>
       <PageHeader code="03" title="LOCATIONS">
         Simulation decks pulled from the Construct. Each one loads a place that never
-        existed — walk it anyway. Jacking in takes over your screen; ESC hands it back.
+        existed. Walk it anyway. Jacking in takes over your screen; ESC hands it back.
       </PageHeader>
 
       <div className="grid gap-4 sm:grid-cols-2">

@@ -379,13 +379,13 @@ export default function RooftopScene({ onExit }: SceneComponentProps) {
     // Diagnose the miss so the player can actually learn from it.
     const j = lastJump.current;
     const message = !j
-      ? 'You ran out of roof — release the jump before the ledge.'
+      ? 'You ran out of roof. Release the jump before the ledge.'
       : j.speed < 5.8
-        ? `Approach too slow (${j.speed.toFixed(1)} of ${SPRINT_MAX.toFixed(0)} m/s) — commit to the full sprint.`
+        ? `Approach too slow (${j.speed.toFixed(1)} of ${SPRINT_MAX.toFixed(0)} m/s). Commit to the full sprint.`
         : j.charge01 < SWEET_START
-          ? 'Released early — hold the charge into the bracket.'
+          ? 'Released early. Hold the charge into the bracket.'
           : j.charge01 > SWEET_END
-            ? 'Released late — the arc collapsed under you.'
+            ? 'Released late. The arc collapsed under you.'
             : 'Inches short. Release closer to the ledge. Again.';
     lastJump.current = null;
     setPhase('glitch');
@@ -418,7 +418,7 @@ export default function RooftopScene({ onExit }: SceneComponentProps) {
       return;
     }
     if (event.type === 'charge-fizzle') {
-      storeRef.current?.toast('Overcharged — the jump fizzled out of your legs.', 2800);
+      storeRef.current?.toast('Overcharged. The jump fizzled out of your legs.', 2800);
       return;
     }
     // land

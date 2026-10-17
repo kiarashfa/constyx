@@ -107,7 +107,7 @@ export function WinOverlay({
         <h2 className="glow mt-1 text-2xl tracking-[0.25em] text-phosphor">HARDLINE REACHED</h2>
         <p className="mt-3 text-xs leading-relaxed text-phosphor/60">
           You looked at everything and lingered on nothing. The crowd never learned your
-          face; the one who was watching never got the chance. That's the whole lesson —
+          face; the one who was watching never got the chance. That's the whole lesson:
           the street is full of things built to be looked at. Stay the one doing the looking.
         </p>
         <dl className="mt-4 space-y-1 border-t border-phosphor/20 pt-3 text-xs text-phosphor/70">

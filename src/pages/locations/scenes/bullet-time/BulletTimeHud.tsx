@@ -107,7 +107,7 @@ export function BulletTimeHud({
           </p>
         )}
         {phase === 'break' && <p className="text-phosphor/60">reload… breathe…</p>}
-        {phase === 'intro' && <p className="text-phosphor/60">he's drawing — watch the air, answer the arrow</p>}
+        {phase === 'intro' && <p className="text-phosphor/60">he's drawing: watch the air, answer the arrow</p>}
         {phase === 'standby' && <p className="text-phosphor/50">take control to begin</p>}
       </div>
 
@@ -181,7 +181,7 @@ export function OutcomeOverlay({
     ['BULLETS DODGED', String(stats.dodged)],
     ['GRAZES TAKEN', String(stats.grazes)],
     ['PERFECT WAVES', String(stats.perfectWaves)],
-    ['AVG REACTION', avgReaction > 0 ? `${avgReaction} ms` : '—'],
+    ['AVG REACTION', avgReaction > 0 ? `${avgReaction} ms` : '–'],
   ];
   return (
     <div className="absolute inset-0 z-10 flex items-center justify-center bg-terminal/85 p-4">
@@ -191,7 +191,7 @@ export function OutcomeOverlay({
           YOU MOVED LIKE THEY DO
         </h2>
         <p className="mt-3 text-xs leading-relaxed text-phosphor/60">
-          Nobody dodges a full magazine on instinct. You didn't need to — you only had to
+          Nobody dodges a full magazine on instinct. You didn't need to; you only had to
           not be where the bullet was going. The air remembers the shape you left in it.
         </p>
         <dl className="mt-4 space-y-1 border-t border-phosphor/20 pt-3 text-xs text-phosphor/70">

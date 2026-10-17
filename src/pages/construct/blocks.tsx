@@ -46,7 +46,7 @@ export function LessonBlockView({ block }: { block: LessonBlock }) {
         <blockquote className="border-l-2 border-loaded pl-4">
           <p className="text-[15px] italic leading-relaxed text-ink">“{block.text}”</p>
           {block.attribution && (
-            <footer className="mt-2 text-xs tracking-wider text-ink-soft">— {block.attribution}</footer>
+            <footer className="mt-2 text-xs tracking-wider text-ink-soft">– {block.attribution}</footer>
           )}
         </blockquote>
       );

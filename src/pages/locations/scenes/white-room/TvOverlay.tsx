@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { useSceneStore } from '../../engine3d/store';
 
 /**
- * PLACEHOLDER video ids — the real Matrix archive footage ids arrive in a
- * later round. Swap the `videoId` values below; nothing else changes.
+ * Every channel plays the same broadcast — deliberately. To program real
+ * channels, swap the `videoId` values below; nothing else changes.
  */
 const TV_CHANNELS = [
   { videoId: 'dQw4w9WgXcQ', label: 'ARCHIVE 01' },
@@ -45,7 +45,7 @@ export function TvOverlay({ onClose }: { onClose: () => void }) {
               key={`${videoId}-${channel}`}
               className="h-full w-full"
               src={`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0`}
-              title={`Broadcast archive — ${label}`}
+              title={`Broadcast archive: ${label}`}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
             />
@@ -74,12 +74,9 @@ export function TvOverlay({ onClose }: { onClose: () => void }) {
             onClick={close}
             className="border border-phosphor/50 px-3 py-1.5 text-[11px] tracking-[0.25em] text-phosphor hover:bg-phosphor/15"
           >
-            [ POWER OFF — ESC ]
+            [ POWER OFF · ESC ]
           </button>
         </div>
-        <p className="mt-2 text-[10px] tracking-[0.2em] text-phosphor/40">
-          placeholder feed :: real archive ids pending
-        </p>
       </div>
     </div>
   );

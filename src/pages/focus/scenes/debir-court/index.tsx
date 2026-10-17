@@ -35,7 +35,7 @@ export default function DebirCourtScene({ onExit }: FocusSceneComponentProps) {
   const onAdjust = useCallback(() => {
     feedTarget.current = feedTarget.current > 0.5 ? 0 : 1;
     return feedTarget.current > 0.5
-      ? 'you scatter the crumbs from the paper bag — the pigeons remember'
+      ? 'you scatter the crumbs from the paper bag; the pigeons remember'
       : 'the crumbs are gone; the pigeons drift back to their patrols';
   }, []);
 

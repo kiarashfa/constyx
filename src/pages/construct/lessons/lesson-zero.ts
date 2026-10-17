@@ -19,7 +19,7 @@ export const lessonZero: Lesson = {
         {
           type: 'paragraph',
           text:
-            'You are reading a training program inside **OPERATOR**, an unofficial, non-commercial fan tribute to *The Matrix* trilogy. The premise: your browser is the operator station of a hovercraft, and every section of this site is a program registered to that console. No accounts, no server, no tracking — the whole ship runs as static files delivered to your machine, and everything you do here stays in your browser.',
+            'You are reading a training program inside **ConStyx**, an unofficial, non-commercial fan tribute to *The Matrix* trilogy. The premise: your browser is the operator station of a hovercraft, and every section of this site is a program registered to that console. No accounts, no memberships, no ads, and the source code is public. The whole ship runs as static files delivered to your machine, and what you do inside the programs stays in your browser.',
         },
         {
           type: 'callout',
@@ -36,22 +36,26 @@ export const lessonZero: Lesson = {
         {
           type: 'paragraph',
           text:
-            'The bar at the top of every page is the ship\'s program registry. Slots **[00]** through **[06]** are permanent; your current location is highlighted in solid green. Slot [00] is the console itself — the boot screen you landed on. Two programs are live today, and four are still compiling.',
+            'The bar at the top of every page is the ship\'s program registry. Slots **[00]** through **[07]** are permanent; your current location is highlighted in solid green. Slot [00] is the console itself: the boot screen you landed on. Every program on the bar is live.',
         },
         {
           type: 'readout',
           entries: [
             { term: '[00] CONSOLE', detail: 'Boot screen and program launcher.' },
-            { term: '[01] OPERATOR', detail: 'Live. A playable monitoring shift — see next section.' },
-            { term: '[02] CONSTRUCT', detail: 'Live. This training library.' },
-            { term: '[03]–[06]', detail: 'Locations, Focus, Screensaver, ASCII — pending compilation in future builds.' },
+            { term: '[01] OPERATOR', detail: 'A playable monitoring shift (see next section).' },
+            { term: '[02] CONSTRUCT', detail: 'This training library.' },
+            { term: '[03] LOCATIONS', detail: 'Explorable 3D scenes. Click to take control; *Esc* hands it back.' },
+            { term: '[04] FOCUS', detail: 'Ambient scenes for long sits. Look around; one click adjusts the room; **V** shows the code.' },
+            { term: '[05] SCREENSAVER', detail: 'Tune the rain live, then export it as a standalone HTML file.' },
+            { term: '[06] ASCII', detail: 'Type a transmission, render it as terminal block art.' },
+            { term: '[07] CODE VISION', detail: 'Your own camera feed, rendered as falling code, locally.' },
           ],
         },
       ],
       image: {
         src: siteMap,
-        alt: 'Diagram of the six programs registered to the operator console',
-        caption: 'FIG 0.1 — signal topology of this console',
+        alt: 'Diagram of the seven programs registered to the operator console',
+        caption: 'FIG 0.1: signal topology of this console',
       },
     },
     {
@@ -61,13 +65,13 @@ export const lessonZero: Lesson = {
         {
           type: 'paragraph',
           text:
-            'Operator is a two-minute monitoring shift. Anomalies surface *inside the falling code* — not in the side panels, which only tell you a sector. Find the column that looks wrong, click it, and answer with the matching verb. Four signatures exist:',
+            'Operator is a two-minute monitoring shift. Anomalies surface *inside the falling code*, not in the side panels, which only tell you a sector. Find the column that looks wrong, click it, and answer with the matching verb. Four signatures exist:',
         },
         {
           type: 'readout',
           entries: [
             { term: 'COLD WHITE + FAST', detail: 'An Agent moving through the code. Verb: **JACK OUT**.' },
-            { term: 'ONE GLYPH REPEATING', detail: 'Déjà vu — a code glitch. Sluggish, stuttering, acid-green. Verb: **PATCH**.' },
+            { term: 'ONE GLYPH REPEATING', detail: 'Déjà vu: a code glitch. Sluggish, stuttering, acid-green. Verb: **PATCH**.' },
             { term: 'PULSING DIGITS', detail: 'A redpill dialing for an exit. Verb: **HARDLINE**.' },
             { term: 'DIM, FAINT, SLOW', detail: 'Residual echo. Harmless static. Verb: **DISMISS**.' },
           ],
@@ -75,7 +79,7 @@ export const lessonZero: Lesson = {
         {
           type: 'paragraph',
           text:
-            'Wrong calls, missed threats, and probing clean columns all heat the **TRACE** meter; at 100% the shift ends early. Correct calls cool it. Number keys 1–4 answer faster than the mouse, and *Esc* backs out of a target. Your career record — shifts, best score, times traced — persists between visits.',
+            'Wrong calls, missed threats, and probing clean columns all heat the **TRACE** meter; at 100% the shift ends early. Correct calls cool it. Number keys 1–4 answer faster than the mouse, and *Esc* backs out of a target. Your career record (shifts, best score, times traced) persists between visits.',
         },
       ],
     },
@@ -86,7 +90,7 @@ export const lessonZero: Lesson = {
         {
           type: 'paragraph',
           text:
-            'The Construct is a library of skill uploads. Choose a program from the library shelf, let the loader run (or skip it — impatience is very human), and read. Each program is a genuine crash course written for this site: real history, real technique, real references. The white void you are standing in is intentional — loading programs live outside the Matrix\'s green rain.',
+            'The Construct is a library of skill uploads. Choose a program from the library shelf, let the loader run (or skip it; impatience is very human), and read. Each program is a genuine crash course written for this site: real history, real technique, real references. The white void you are standing in is intentional: loading programs live outside the Matrix\'s green rain.',
         },
         {
           type: 'list',
@@ -106,7 +110,12 @@ export const lessonZero: Lesson = {
         {
           type: 'paragraph',
           text:
-            'Everything the console remembers about you — Operator career stats, Construct download records — lives in your browser\'s **localStorage** under keys prefixed `operator.` and `construct.`. Nothing is transmitted anywhere. The corollary: clearing site data, switching browsers, or going incognito starts you from a blank record. There is no cloud. There is only your machine.',
+            'Everything the console remembers about you (Operator career stats, Construct download records, whether you have already seen the Armory load in) lives in your browser\'s **localStorage** under keys prefixed `operator.`, `construct.`, and `armory.`. None of it is transmitted. The corollary: clearing site data, switching browsers, or going incognito starts you from a blank record. There is no account to restore it from.',
+        },
+        {
+          type: 'paragraph',
+          text:
+            'The one signal that does leave the ship is visitor statistics. The site uses **Google Analytics** to count visits (which pages are opened, roughly from where, on what kind of device), and Google sets its own cookies to do it. It does not see your scores, your lessons, or anything you type. Code Vision\'s camera feed never leaves your device at all.',
         },
         {
           type: 'callout',
@@ -117,7 +126,7 @@ export const lessonZero: Lesson = {
         {
           type: 'quote',
           text: 'I can only show you the door. You\'re the one that has to walk through it.',
-          attribution: 'Morpheus — which is also how the rest of this library works',
+          attribution: 'Morpheus (which is also how the rest of this library works)',
         },
       ],
     },

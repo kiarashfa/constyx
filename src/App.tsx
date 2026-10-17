@@ -11,6 +11,7 @@ import { FocusSceneRoute } from './pages/focus/FocusSceneRoute';
 import { ScreensaverPage } from './pages/screensaver/ScreensaverPage';
 import { AsciiPage } from './pages/ascii/AsciiPage';
 import { CodeVisionPage } from './pages/code-vision/CodeVisionPage';
+import { AboutPage } from './pages/about/AboutPage';
 import { NotFound } from './pages/NotFound';
 
 export default function App() {
@@ -30,6 +31,7 @@ export default function App() {
         <Route path="screensaver" element={<ScreensaverPage />} />
         <Route path="ascii" element={<AsciiPage />} />
         <Route path="code-vision" element={<CodeVisionPage />} />
+        <Route path="about" element={<AboutPage />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

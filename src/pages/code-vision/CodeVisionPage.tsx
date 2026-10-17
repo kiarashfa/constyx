@@ -72,7 +72,7 @@ export function CodeVisionPage() {
       <PageHeader code="07" title="CODE VISION">
         The operator&apos;s gift: to stop seeing the render and start seeing the code
         underneath it. Point the hardline at your own feed and watch it resolve into falling
-        green glyphs — brightness and edges picked out in characters, the way Neo learned to
+        green glyphs, brightness and edges picked out in characters, the way Neo learned to
         read the world. Local only: the image never leaves this machine.
       </PageHeader>
 
@@ -229,7 +229,7 @@ function FeedPlaceholder({
       <div className="max-w-sm px-6 text-center">
         <p className="text-sm tracking-[0.2em] text-phosphor/80">NO HARDLINE</p>
         <p className="mt-2 text-xs leading-relaxed text-phosphor/55">
-          This browser won&apos;t expose a camera here. Camera access needs a secure context —
+          This browser won&apos;t expose a camera here. Camera access needs a secure context:
           run the site over <span className="text-phosphor/80">localhost</span> or https rather
           than a <span className="text-phosphor/80">file://</span> path.
         </p>

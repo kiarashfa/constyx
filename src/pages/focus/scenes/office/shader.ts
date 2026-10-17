@@ -2,7 +2,7 @@ import { GLSL_PRELUDE } from '../../engine/prelude';
 
 /**
  * MetaCortex - Neo's cubicle, 1999 (round-16 rebuild, staged to match the
- * owner-provided reference set in assets-userprovided/office/, esp. Sample.jpg
+ * owner-provided reference set in local/assets-userprovided/office/, esp. Sample.jpg
  * and window_washers.png).
  *
  * Composition: the viewer stands at the cubicle entrance looking IN (-Z) at the

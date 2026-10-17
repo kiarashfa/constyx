@@ -61,7 +61,7 @@ export function ConstructPage() {
         <h1 className="mt-1 text-3xl font-bold tracking-[0.25em] sm:text-4xl">THE CONSTRUCT</h1>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink-soft">
           This is the loading program. We can load anything, from clothing to equipment,
-          weapons, training simulations — anything we need. Choose a discipline; the
+          weapons, training simulations, anything we need. Choose a discipline; the
           console uploads it straight to your head. Reading it afterwards is, regrettably,
           still manual.
         </p>

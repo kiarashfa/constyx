@@ -2,7 +2,7 @@
  * OPERATOR audio core — fully procedural Web Audio. No sample files: every
  * bed and one-shot is synthesized, so the project stays offline-complete
  * and license-clean. (Real recordings can still be layered in later via
- * assets-userprovided/; see HANDOFF.)
+ * local/assets-userprovided/; see HANDOFF.)
  *
  * Conventions:
  *  - master gain .75 into a safety compressor;

@@ -1,21 +1,22 @@
 import { Link } from 'react-router-dom';
+import { SITE } from '../site/config';
+import { SECTIONS } from '../site/routes';
+import { SCENES } from './locations/scenes';
+import { FOCUS_SCENES } from './focus/scenes';
+
+/** `label ....... value`, dot-leadered so the values line up in one column. */
+const readout = (label: string, value: string) =>
+  `${label} ${'.'.repeat(Math.max(2, 23 - label.length))} ${value}`;
+
+const sceneCount = [...SCENES, ...FOCUS_SCENES].filter((scene) => scene.status === 'online').length;
 
 const BOOT_LINES = [
-  'NEBUCHADNEZZAR :: OPERATOR CONSOLE v0.1.0',
-  'hardline .............. OK',
-  'broadcast depth ........ SEARCHING',
-  'trace shield ........... ACTIVE',
-  'constructs ............. 6 REGISTERED / 0 INITIALIZED',
-];
-
-const PROGRAMS = [
-  { to: '/operator', label: 'OPERATOR — watch the code' },
-  { to: '/construct', label: 'CONSTRUCT — skill downloads' },
-  { to: '/locations', label: 'LOCATIONS — simulation decks' },
-  { to: '/focus', label: 'FOCUS — deep-work sessions' },
-  { to: '/screensaver', label: 'SCREENSAVER — export the rain' },
-  { to: '/ascii', label: 'ASCII — transmission composer' },
-  { to: '/code-vision', label: 'CODE VISION — see the feed as code' },
+  `NEBUCHADNEZZAR :: OPERATOR CONSOLE v${__APP_VERSION__}`,
+  readout('hardline', 'OK'),
+  readout('broadcast depth', 'SEARCHING'),
+  readout('trace shield', 'ACTIVE'),
+  readout('programs', `${SECTIONS.length} ONLINE`),
+  readout('simulations', `${sceneCount} LOADED`),
 ];
 
 /** Full-bleed rain with a minimal boot readout floating on top. */
@@ -29,19 +30,19 @@ export function Landing() {
           ))}
         </div>
 
-        <h1 className="glow mt-6 text-4xl tracking-[0.4em] sm:text-5xl">OPERATOR</h1>
+        <h1 className="glow mt-6 text-4xl tracking-[0.3em] sm:text-5xl">{SITE.name}</h1>
         <p className="mt-3 text-sm text-phosphor/70">
           The Matrix has you. This console watches it back.
         </p>
 
         <div className="mt-6 space-y-1.5 text-xs sm:text-sm">
-          {PROGRAMS.map(({ to, label }) => (
-            <p key={to}>
+          {SECTIONS.map(({ path, label, tagline }) => (
+            <p key={path}>
               <Link
-                to={to}
+                to={path}
                 className="text-phosphor/80 transition-colors hover:text-phosphor-bright"
               >
-                &gt; run {label}
+                &gt; run {label} :: {tagline}
               </Link>
             </p>
           ))}
@@ -49,6 +50,11 @@ export function Landing() {
 
         <p className="mt-6 text-xs text-phosphor-dim">
           awaiting operator input <span className="cursor-blink text-phosphor">▮</span>
+        </p>
+        <p className="mt-2 text-xs">
+          <Link to="/about" className="text-phosphor/60 transition-colors hover:text-phosphor-bright">
+            &gt; whoami :: about this console
+          </Link>
         </p>
       </div>
     </div>

@@ -13,7 +13,7 @@ export function FocusPage() {
   return (
     <>
       <PageHeader code="04" title="FOCUS">
-        No timers, no objectives. Ambient feeds to leave open while you work — you are
+        No timers, no objectives. Ambient feeds to leave open while you work. You are
         posted at one vantage point inside each place. Look around; the world runs on
         its own. Jacking in takes over your screen; ESC hands it back.
       </PageHeader>

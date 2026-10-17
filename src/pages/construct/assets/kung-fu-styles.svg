@@ -16,11 +16,11 @@
   <path class="wire" d="M380 78 V108 M380 108 H190 M380 108 H570 M190 108 V138 M570 108 V138" />
 
   <rect class="box" x="70" y="138" width="240" height="52" />
-  <text class="name" x="190" y="160" text-anchor="middle">EXTERNAL — WAIJIA</text>
+  <text class="name" x="190" y="160" text-anchor="middle">EXTERNAL · WAIJIA</text>
   <text class="sub" x="190" y="178" text-anchor="middle">force, speed, conditioning</text>
 
   <rect class="box" x="450" y="138" width="240" height="52" />
-  <text class="name" x="570" y="160" text-anchor="middle">INTERNAL — NEIJIA</text>
+  <text class="name" x="570" y="160" text-anchor="middle">INTERNAL · NEIJIA</text>
   <text class="sub" x="570" y="178" text-anchor="middle">structure, sensitivity, yielding</text>
 
   <path class="wire" d="M190 190 V220 M190 220 H100 M190 220 H290 M100 220 V248 M290 220 V248 M570 190 V248" />
@@ -41,10 +41,10 @@
 
   <rect class="group" x="450" y="248" width="240" height="128" />
   <text class="name" x="570" y="272" text-anchor="middle">THE THREE SISTERS</text>
-  <text class="item" x="466" y="300">▸ Taijiquan — spirals, yielding</text>
-  <text class="item" x="466" y="322">▸ Baguazhang — circle walking</text>
-  <text class="item" x="466" y="344">▸ Xingyiquan — linear bursts</text>
+  <text class="item" x="466" y="300">▸ Taijiquan: spirals, yielding</text>
+  <text class="item" x="466" y="322">▸ Baguazhang: circle walking</text>
+  <text class="item" x="466" y="344">▸ Xingyiquan: linear bursts</text>
 
-  <text class="note" x="380" y="420" text-anchor="middle">note :: a working map, not a taxonomy — real lineages blur every one of these lines</text>
+  <text class="note" x="380" y="420" text-anchor="middle">note :: a working map, not a taxonomy; real lineages blur every one of these lines</text>
   <text class="sub" x="380" y="444" text-anchor="middle">hundreds of documented styles descend from village, temple and military lines</text>
 </svg>

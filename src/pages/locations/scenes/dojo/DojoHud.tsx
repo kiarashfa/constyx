@@ -92,8 +92,8 @@ export function DojoHud({ phase, callout, stats, practiceCounts, flash, telegrap
 
       {/* Mode banner */}
       <div className="pointer-events-none absolute left-1/2 top-10 -translate-x-1/2 text-center text-[10px] tracking-[0.35em]">
-        {phase === 'practice' && <p className="text-phosphor/70">PRACTICE FORMS — no harm here</p>}
-        {phase === 'sparring' && <p className="glow text-phosphor">SPARRING — round live</p>}
+        {phase === 'practice' && <p className="text-phosphor/70">PRACTICE FORMS: no harm here</p>}
+        {phase === 'sparring' && <p className="glow text-phosphor">SPARRING: round live</p>}
         {phase === 'warmup' && (
           <p className="text-phosphor/50">approach your partner and bow [E] · or [G] to spar now</p>
         )}
@@ -158,9 +158,9 @@ export function DojoHud({ phase, callout, stats, practiceCounts, flash, telegrap
       {/* Input legend */}
       {(phase === 'practice' || phase === 'sparring') && (
         <div className="pointer-events-none absolute bottom-6 right-6 text-right text-[10px] tracking-[0.2em] text-phosphor/45">
-          <p>SPACE — dodge low</p>
-          <p>RIGHT-CLICK — block heavy</p>
-          <p>LEFT-CLICK — counter the opening</p>
+          <p>SPACE: dodge low</p>
+          <p>RIGHT-CLICK: block heavy</p>
+          <p>LEFT-CLICK: counter the opening</p>
         </div>
       )}
     </>
@@ -182,12 +182,12 @@ const OUTCOME_COPY: Record<OutcomeInfo['result'], { title: string; line: string;
   'lose-health': {
     title: 'ROUND LOST',
     line: '“You’re faster than this.”',
-    sub: 'he isn’t stronger than you — he’s only faster. condition depleted.',
+    sub: 'he isn’t stronger than you; he’s only faster. condition depleted.',
   },
   'lose-streak': {
     title: 'ROUND LOST',
     line: '“Stop trying to hit me and hit me.”',
-    sub: 'three misreads in a row — you’re guessing, not reading.',
+    sub: 'three misreads in a row: you’re guessing, not reading.',
   },
 };
 
@@ -209,7 +209,7 @@ export function OutcomeOverlay({
     ['READS', String(s.reads)],
     ['COUNTERS LANDED', String(s.counters)],
     ['HITS TAKEN', String(s.hitsTaken)],
-    ['READ ACCURACY', attempts > 0 ? `${Math.round((s.reads / attempts) * 100)}%` : '—'],
+    ['READ ACCURACY', attempts > 0 ? `${Math.round((s.reads / attempts) * 100)}%` : '–'],
     ['BEST READ STREAK', String(s.bestReadStreak)],
     ['ROUND TIME', `${Math.round(outcome.durationMs / 1000)}s`],
   ];

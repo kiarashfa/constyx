@@ -35,7 +35,7 @@ export function AsciiPage() {
 
   const onCopy = async () => {
     if (!hasArt) return;
-    flash((await copyText(output)) ? 'COPIED TO CLIPBOARD' : 'COPY BLOCKED — SELECT MANUALLY');
+    flash((await copyText(output)) ? 'COPIED TO CLIPBOARD' : 'COPY BLOCKED: SELECT MANUALLY');
   };
 
   const onDownload = () => {
@@ -47,7 +47,7 @@ export function AsciiPage() {
   return (
     <>
       <PageHeader code="06" title="ASCII COMPOSER">
-        Compose transmissions the way the Nebuchadnezzar would print them — oversized glyph
+        Compose transmissions the way the Nebuchadnezzar would print them: oversized glyph
         art from a hand-built terminal font. Short strings read best. Copy it into any
         channel that still takes plain text, or save it to a file.
       </PageHeader>

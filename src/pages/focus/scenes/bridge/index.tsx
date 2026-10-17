@@ -77,7 +77,7 @@ export default function BridgeScene({ onExit }: FocusSceneComponentProps) {
   const onAdjust = useCallback(() => {
     stormTarget.current = stormTarget.current > 0.5 ? 0 : 1;
     return stormTarget.current > 0.5
-      ? 'the sky opens up — water sheets off the deck in one long curtain'
+      ? 'the sky opens up: water sheets off the deck in one long curtain'
       : 'the downpour eases back to a steady, patient rain';
   }, []);
 

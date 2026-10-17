@@ -19,18 +19,18 @@ export const habitArchitecture: Lesson = {
         {
           type: 'paragraph',
           text:
-            'A habit is behavior that has been compiled — moved from the brain\'s slow, deliberate systems into fast automatic machinery (the basal ganglia are heavily involved) so it runs without conscious debate. The compiler\'s input format is a loop. Charles Duhigg popularized it as *cue → routine → reward*; James Clear\'s **Atomic Habits** (2018) splits it into four beats: **cue** (the trigger), **craving** (the wanting it produces), **response** (the behavior), **reward** (the payoff that teaches the brain to run it again). Every habit you have — good, bad, invisible — is this loop with the serial numbers filed off.',
+            'A habit is behavior that has been compiled: moved from the brain\'s slow, deliberate systems into fast automatic machinery (the basal ganglia are heavily involved) so it runs without conscious debate. The compiler\'s input format is a loop. Charles Duhigg popularized it as *cue → routine → reward*; James Clear\'s **Atomic Habits** (2018) splits it into four beats: **cue** (the trigger), **craving** (the wanting it produces), **response** (the behavior), **reward** (the payoff that teaches the brain to run it again). Every habit you have (good, bad, invisible) is this loop with the serial numbers filed off.',
         },
         {
           type: 'paragraph',
           text:
-            'Two myths to delete. First, "21 days to form a habit" is folklore (it traces to a plastic surgeon\'s observations about amputees adjusting to their bodies, not to habit research). The real data — **Phillippa Lally\'s** 2010 study — found automaticity took anywhere from **18 to 254 days, averaging about 66**, depending on the person and the behavior. Second, missing a day does not reset the counter; the curve barely notices single gaps. The rule that matters: **never miss twice**. Once is an accident; twice is the start of a rival habit.',
+            'Two myths to delete. First, "21 days to form a habit" is folklore (it traces to a plastic surgeon\'s observations about amputees adjusting to their bodies, not to habit research). The real data, from **Phillippa Lally\'s** 2010 study, found automaticity took anywhere from **18 to 254 days, averaging about 66**, depending on the person and the behavior. Second, missing a day does not reset the counter; the curve barely notices single gaps. The rule that matters: **never miss twice**. Once is an accident; twice is the start of a rival habit.',
         },
       ],
       image: {
         src: habitLoop,
         alt: 'Circular diagram of the habit loop: cue, craving, response, reward, each paired with one of the four laws',
-        caption: 'FIG 4.1 — the loop, annotated with the four laws of behavior change',
+        caption: 'FIG 4.1: the loop, annotated with the four laws of behavior change',
       },
     },
     {
@@ -45,10 +45,10 @@ export const habitArchitecture: Lesson = {
         {
           type: 'readout',
           entries: [
-            { term: '1. MAKE IT OBVIOUS', detail: 'Design the cue. The strongest tool is the **implementation intention** (Peter Gollwitzer\'s research): "When *situation X*, I will *behavior Y*" — e.g. "When I pour my morning coffee, I will write one sentence." Vague intentions fail because the brain never receives a trigger. **Habit stacking** chains a new habit onto an existing one.' },
-            { term: '2. MAKE IT ATTRACTIVE', detail: 'Bundle the behavior with something you want (only the podcast while running), and exploit the social gradient — join the group where your desired behavior is the normal one. We absorb the habits of our tribes.' },
-            { term: '3. MAKE IT EASY', detail: 'Shrink the start: the **two-minute rule** says the habit\'s entry version should take under two minutes ("read one page," "put on the gi"). Reduce friction — gym bag packed by the door, editor already open. You are not training the outcome yet; you are training *showing up*.' },
-            { term: '4. MAKE IT SATISFYING', detail: 'The brain repeats what pays immediately. Add a small instant reward, and track the streak — a marked calendar is a reward dispenser. What gets measured gets repeated.' },
+            { term: '1. MAKE IT OBVIOUS', detail: 'Design the cue. The strongest tool is the **implementation intention** (Peter Gollwitzer\'s research): "When *situation X*, I will *behavior Y*", e.g. "When I pour my morning coffee, I will write one sentence." Vague intentions fail because the brain never receives a trigger. **Habit stacking** chains a new habit onto an existing one.' },
+            { term: '2. MAKE IT ATTRACTIVE', detail: 'Bundle the behavior with something you want (only the podcast while running), and exploit the social gradient: join the group where your desired behavior is the normal one. We absorb the habits of our tribes.' },
+            { term: '3. MAKE IT EASY', detail: 'Shrink the start: the **two-minute rule** says the habit\'s entry version should take under two minutes ("read one page," "put on the gi"). Reduce friction: gym bag packed by the door, editor already open. You are not training the outcome yet; you are training *showing up*.' },
+            { term: '4. MAKE IT SATISFYING', detail: 'The brain repeats what pays immediately. Add a small instant reward, and track the streak; a marked calendar is a reward dispenser. What gets measured gets repeated.' },
           ],
         },
       ],
@@ -60,12 +60,12 @@ export const habitArchitecture: Lesson = {
         {
           type: 'paragraph',
           text:
-            'Bad habits are not deleted by willpower; they are **starved and outcompeted**. Invert each law: make the cue *invisible* (the single highest-leverage move — remove the app, the snack, the tab from your environment rather than resisting them in place), make it *unattractive* (reframe what it costs you), make it *hard* (add friction: log out, unplug, move it to another room), make it *unsatisfying* (visibility — a tracked slip, an accountability partner).',
+            'Bad habits are not deleted by willpower; they are **starved and outcompeted**. Invert each law: make the cue *invisible* (the single highest-leverage move: remove the app, the snack, the tab from your environment rather than resisting them in place), make it *unattractive* (reframe what it costs you), make it *hard* (add friction: log out, unplug, move it to another room), make it *unsatisfying* (visibility: a tracked slip, an accountability partner).',
         },
         {
           type: 'paragraph',
           text:
-            'Note the pattern: every effective move edits the **environment**, not the self. Willpower is real but expensive and depletable; people who look disciplined mostly live in better-designed rooms. And because old loops are dormant rather than erased, the reliable strategy is **replacement** — keep the cue and reward, swap the response — rather than leaving a vacuum where the routine used to fire.',
+            'Note the pattern: every effective move edits the **environment**, not the self. Willpower is real but expensive and depletable; people who look disciplined mostly live in better-designed rooms. And because old loops are dormant rather than erased, the reliable strategy is **replacement** (keep the cue and reward, swap the response) rather than leaving a vacuum where the routine used to fire.',
         },
         {
           type: 'callout',
@@ -92,7 +92,7 @@ export const habitArchitecture: Lesson = {
         {
           type: 'quote',
           text: 'There is a difference between knowing the path and walking the path.',
-          attribution: 'Morpheus — the entire habit literature in one sentence',
+          attribution: 'Morpheus (the entire habit literature in one sentence)',
         },
       ],
     },

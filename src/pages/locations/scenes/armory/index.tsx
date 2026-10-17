@@ -351,7 +351,7 @@ function SceneInteractables({
         radius={2.4}
         onInteract={() => {
           onReplayRush();
-          store.toast('Ordnance recall — stand by.', 1800);
+          store.toast('Ordnance recall. Stand by.', 1800);
         }}
       >
         <Pedestal position={[-1.5, 0, 10]} />
@@ -467,7 +467,7 @@ export default function ArmoryScene({ onExit }: SceneComponentProps) {
             onLoad={(w) => {
               setWeapon(w);
               setManifestOpen(false);
-              storeRef.current?.toast(`${w.name} loaded — range is hot down the aisle.`, 3600);
+              storeRef.current?.toast(`${w.name} loaded. Range is hot down the aisle.`, 3600);
             }}
             onClose={() => setManifestOpen(false)}
           />

@@ -92,8 +92,8 @@ export default function MobilAveScene({ onExit }: FocusSceneComponentProps) {
   const onAdjust = useCallback(() => {
     nightTarget.current = nightTarget.current > 0.5 ? 0 : 1;
     return nightTarget.current > 0.5
-      ? 'night service — half the tubes go dark, and the hum drops'
-      : 'full service — every tube flickers back on';
+      ? 'night service: half the tubes go dark, and the hum drops'
+      : 'full service: every tube flickers back on';
   }, []);
 
   useEffect(() => {

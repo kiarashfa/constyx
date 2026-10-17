@@ -20,7 +20,7 @@ export function BriefingOverlay({
       <p className="text-[10px] tracking-[0.3em] text-phosphor-dim">SHIFT BRIEFING</p>
       <h2 className="glow mt-1 text-xl tracking-[0.3em]">WATCH THE CODE</h2>
       <ul className="mt-4 space-y-2 text-xs leading-relaxed text-phosphor/70">
-        <li>▸ Anomalies surface as columns that look wrong — white and fast, repeating glyphs, pulsing digits, or faint static.</li>
+        <li>▸ Anomalies surface as columns that look wrong: white and fast, repeating glyphs, pulsing digits, or faint static.</li>
         <li>▸ Click the affected column, then pick the verb that matches what you saw. Every signature has exactly one right call.</li>
         <li>▸ Wrong calls, misses, and probing clean nodes raise the TRACE. At 100% they find the hardline.</li>
       </ul>
@@ -46,7 +46,7 @@ export function PausedOverlay({ onResume }: { onResume: () => void }) {
     <OverlayFrame>
       <h2 className="glow text-xl tracking-[0.3em]">FEED HELD</h2>
       <p className="mt-3 text-xs text-phosphor/70">
-        Shift clock frozen. The code waits for no one — but the console does.
+        Shift clock frozen. The code waits for no one, but the console does.
       </p>
       <button
         type="button"

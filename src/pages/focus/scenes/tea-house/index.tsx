@@ -33,7 +33,7 @@ export default function TeaHouseScene({ onExit }: FocusSceneComponentProps) {
   const onAdjust = useCallback(() => {
     incenseTarget.current = incenseTarget.current > 0.5 ? 0 : 1;
     return incenseTarget.current > 0.5
-      ? 'you touch a coal to the incense — sandalwood curls into the light'
+      ? 'you touch a coal to the incense; sandalwood curls into the light'
       : 'the stick burns down; the air slowly clears';
   }, []);
 
