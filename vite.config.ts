@@ -230,6 +230,8 @@ function sitePlugin(): Plugin {
         resolve(outDir, '404.html'),
         render({ path: '/404', title: `${SITE.name} · Not Found`, description: SITE.description }, { noindex: true }),
       );
+      // Fixed name and location: the origin's robots.txt (kiarashfa.github.io)
+      // lists `<origin><base>sitemap-index.xml` for every project. Don't rename.
       writeFileSync(resolve(outDir, 'sitemap-index.xml'), sitemap(base, pages));
     },
   };
