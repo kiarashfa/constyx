@@ -1,207 +1,181 @@
-import { useLayoutEffect, useMemo, useRef, type MutableRefObject } from 'react';
+import { useMemo, useRef, type MutableRefObject } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Color, Object3D, type Group, type InstancedMesh } from 'three';
-import { useSceneStore } from '../../engine3d/store';
+import {
+  BufferAttribute,
+  CanvasTexture,
+  Color,
+  MeshBasicMaterial,
+  SRGBColorSpace,
+  type Group,
+  type Mesh,
+  type MeshStandardMaterial,
+  type Object3D,
+} from 'three';
+import { getGLTF, preloadGLTF } from '../../engine3d/assets';
+import { useSceneStore, type Collider2D } from '../../engine3d/store';
 import type { WeaponArchetype } from './types';
+import sceneUrl from './assets/armory.glb?url';
 
-const GUNMETAL = '#33383f';
-const GRIP = '#1d1b18';
-const WOOD = '#6b4a2c';
+/** The void: floor, horizon and sky are one colour, so the room has no edges. */
+export const VOID_WHITE = '#eef2ee';
 
-/* ----------------------------------------------------- viewmodel archetypes
- * Procedural weapon models, barrel toward -z, origin at the grip. Detailed
- * enough to read the class instantly.
- */
-function Metal({ color = GUNMETAL }: { color?: string }) {
-  return <meshStandardMaterial color={color} metalness={0.55} roughness={0.42} />;
+/** Awaited by the scene route behind the jack-in transition. */
+export const preloadArmory = () => preloadGLTF(sceneUrl);
+
+const ARCHETYPES: WeaponArchetype[] = [
+  'pistol',
+  'revolver',
+  'smg',
+  'rifle',
+  'bullpup',
+  'shotgun',
+  'double',
+  'lmg',
+  'sniper',
+];
+
+interface ArmoryParts {
+  rack: Object3D;
+  terminal: Object3D;
+  target: Object3D;
+  guns: Partial<Record<WeaponArchetype, Object3D>>;
 }
 
-export function WeaponModel({ archetype }: { archetype: WeaponArchetype }) {
-  switch (archetype) {
-    case 'pistol':
-    case 'revolver':
-      return (
-        <group>
-          <mesh position={[0, 0.03, -0.06]}>
-            <boxGeometry args={[0.034, 0.05, 0.19]} />
-            <Metal />
-          </mesh>
-          <mesh position={[0, 0.035, -0.19]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.011, 0.011, archetype === 'revolver' ? 0.14 : 0.09, 10]} />
-            <Metal />
-          </mesh>
-          {archetype === 'revolver' && (
-            <mesh position={[0, 0.02, -0.045]} rotation={[Math.PI / 2, 0, 0]}>
-              <cylinderGeometry args={[0.026, 0.026, 0.05, 12]} />
-              <Metal />
-            </mesh>
-          )}
-          <mesh position={[0, -0.045, 0.01]} rotation={[0.22, 0, 0]}>
-            <boxGeometry args={[0.03, 0.1, 0.045]} />
-            <Metal color={GRIP} />
-          </mesh>
-        </group>
-      );
-    case 'smg':
-      return (
-        <group>
-          <mesh position={[0, 0.03, -0.1]}>
-            <boxGeometry args={[0.045, 0.07, 0.3]} />
-            <Metal />
-          </mesh>
-          <mesh position={[0, 0.03, -0.31]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.012, 0.012, 0.13, 10]} />
-            <Metal />
-          </mesh>
-          <mesh position={[0, -0.06, -0.1]}>
-            <boxGeometry args={[0.032, 0.13, 0.05]} />
-            <Metal color={GRIP} />
-          </mesh>
-          <mesh position={[0, -0.04, 0.02]} rotation={[0.2, 0, 0]}>
-            <boxGeometry args={[0.03, 0.09, 0.045]} />
-            <Metal color={GRIP} />
-          </mesh>
-          <mesh position={[0, 0.02, 0.09]}>
-            <boxGeometry args={[0.03, 0.03, 0.12]} />
-            <Metal />
-          </mesh>
-        </group>
-      );
-    case 'rifle':
-      return (
-        <group>
-          <mesh position={[0, 0.03, -0.14]}>
-            <boxGeometry args={[0.042, 0.065, 0.42]} />
-            <Metal />
-          </mesh>
-          <mesh position={[0, 0.032, -0.46]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.011, 0.011, 0.26, 10]} />
-            <Metal />
-          </mesh>
-          <mesh position={[0, -0.055, -0.16]} rotation={[0.35, 0, 0]}>
-            <boxGeometry args={[0.032, 0.13, 0.06]} />
-            <Metal color={GRIP} />
-          </mesh>
-          <mesh position={[0, -0.035, 0.03]} rotation={[0.18, 0, 0]}>
-            <boxGeometry args={[0.03, 0.09, 0.045]} />
-            <Metal color={GRIP} />
-          </mesh>
-          <mesh position={[0, 0.02, 0.16]}>
-            <boxGeometry args={[0.038, 0.07, 0.18]} />
-            <Metal color={WOOD} />
-          </mesh>
-        </group>
-      );
-    case 'bullpup':
-      return (
-        <group>
-          <mesh position={[0, 0.025, -0.02]}>
-            <boxGeometry args={[0.05, 0.085, 0.4]} />
-            <Metal color="#3c4238" />
-          </mesh>
-          <mesh position={[0, 0.03, -0.32]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.012, 0.012, 0.2, 10]} />
-            <Metal />
-          </mesh>
-          <mesh position={[0, 0.09, -0.08]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.02, 0.02, 0.08, 10]} />
-            <Metal />
-          </mesh>
-          <mesh position={[0, -0.05, -0.12]} rotation={[0.2, 0, 0]}>
-            <boxGeometry args={[0.03, 0.1, 0.045]} />
-            <Metal color={GRIP} />
-          </mesh>
-        </group>
-      );
-    case 'shotgun':
-      return (
-        <group>
-          <mesh position={[0, 0.03, -0.12]}>
-            <boxGeometry args={[0.04, 0.06, 0.4]} />
-            <Metal />
-          </mesh>
-          <mesh position={[0, 0.04, -0.42]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.013, 0.013, 0.3, 10]} />
-            <Metal />
-          </mesh>
-          <mesh position={[0, -0.005, -0.34]}>
-            <boxGeometry args={[0.035, 0.035, 0.14]} />
-            <Metal color={WOOD} />
-          </mesh>
-          <mesh position={[0, -0.02, 0.12]} rotation={[0.12, 0, 0]}>
-            <boxGeometry args={[0.038, 0.09, 0.18]} />
-            <Metal color={WOOD} />
-          </mesh>
-        </group>
-      );
-    case 'double':
-      return (
-        <group>
-          {([-1, 1] as const).map((s) => (
-            <mesh key={s} position={[s * 0.013, 0.04, -0.26]} rotation={[Math.PI / 2, 0, 0]}>
-              <cylinderGeometry args={[0.011, 0.011, 0.34, 10]} />
-              <Metal />
-            </mesh>
-          ))}
-          <mesh position={[0, 0.03, -0.04]}>
-            <boxGeometry args={[0.045, 0.055, 0.14]} />
-            <Metal />
-          </mesh>
-          <mesh position={[0, -0.015, 0.12]} rotation={[0.12, 0, 0]}>
-            <boxGeometry args={[0.04, 0.09, 0.2]} />
-            <Metal color={WOOD} />
-          </mesh>
-        </group>
-      );
-    case 'lmg':
-      return (
-        <group>
-          <mesh position={[0, 0.03, -0.14]}>
-            <boxGeometry args={[0.06, 0.1, 0.5]} />
-            <Metal />
-          </mesh>
-          <mesh position={[0, 0.045, -0.52]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.014, 0.014, 0.32, 10]} />
-            <Metal />
-          </mesh>
-          <mesh position={[0, -0.09, -0.16]}>
-            <boxGeometry args={[0.05, 0.09, 0.14]} />
-            <Metal color={GRIP} />
-          </mesh>
-          {([-1, 1] as const).map((s) => (
-            <mesh key={s} position={[s * 0.04, -0.06, -0.55]} rotation={[0, 0, s * 0.35]}>
-              <cylinderGeometry args={[0.006, 0.006, 0.22, 6]} />
-              <Metal />
-            </mesh>
-          ))}
-          <mesh position={[0, -0.03, 0.12]} rotation={[0.15, 0, 0]}>
-            <boxGeometry args={[0.035, 0.09, 0.14]} />
-            <Metal color={GRIP} />
-          </mesh>
-        </group>
-      );
-    case 'sniper':
-      return (
-        <group>
-          <mesh position={[0, 0.025, -0.16]}>
-            <boxGeometry args={[0.038, 0.055, 0.5]} />
-            <Metal color={WOOD} />
-          </mesh>
-          <mesh position={[0, 0.03, -0.56]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.009, 0.009, 0.4, 10]} />
-            <Metal />
-          </mesh>
-          <mesh position={[0, 0.085, -0.18]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.018, 0.018, 0.16, 10]} />
-            <Metal />
-          </mesh>
-          <mesh position={[0, -0.03, 0.1]} rotation={[0.15, 0, 0]}>
-            <boxGeometry args={[0.036, 0.1, 0.2]} />
-            <Metal color={WOOD} />
-          </mesh>
-        </group>
-      );
+let parts: ArmoryParts | null = null;
+
+/**
+ * Pull the named props out of the scene file (once per session). Baked floor
+ * shadows become unlit void-coloured decals so they melt into the floor.
+ */
+export function getArmoryParts(): ArmoryParts | null {
+  if (parts) return parts;
+  const gltf = getGLTF(sceneUrl);
+  if (!gltf) return null;
+  const find = (name: string) => gltf.scene.getObjectByName(name);
+  const rack = find('Rack');
+  const terminal = find('Terminal');
+  const target = find('Target');
+  if (!rack || !terminal || !target) return null;
+
+  gltf.scene.traverse((node) => {
+    const mesh = node as Mesh;
+    if (!mesh.isMesh || !mesh.name.endsWith('_Shadow')) return;
+    const baked = mesh.material as MeshStandardMaterial;
+    mesh.material = new MeshBasicMaterial({
+      map: baked.map,
+      color: new Color(VOID_WHITE),
+      toneMapped: false,
+      polygonOffset: true,
+      polygonOffsetFactor: -2,
+      polygonOffsetUnits: -2,
+    });
+  });
+
+  // The screen quad ships without UVs (it has no baked texture), so derive
+  // them from its extents: u across, v up the tilted face.
+  const screen = terminal.getObjectByName('Terminal_Screen') as Mesh | undefined;
+  if (screen) {
+    const geometry = screen.geometry;
+    geometry.computeBoundingBox();
+    const box = geometry.boundingBox;
+    const pos = geometry.getAttribute('position');
+    if (box) {
+      const uv = new Float32Array(pos.count * 2);
+      for (let i = 0; i < pos.count; i++) {
+        uv[i * 2] = (pos.getX(i) - box.min.x) / (box.max.x - box.min.x);
+        uv[i * 2 + 1] = (pos.getY(i) - box.min.y) / (box.max.y - box.min.y);
+      }
+      geometry.setAttribute('uv', new BufferAttribute(uv, 2));
+    }
   }
+
+  const guns: ArmoryParts['guns'] = {};
+  for (const archetype of ARCHETYPES) {
+    const gun = find(`Gun_${archetype}`);
+    if (gun) guns[archetype] = gun;
+  }
+  parts = { rack, terminal, target, guns };
+  return parts;
+}
+
+/* ------------------------------------------------------------ view models */
+
+/** Where each class sits relative to the eye: [forward, right, up] metres. */
+export const HOLD: Record<WeaponArchetype, [number, number, number]> = {
+  pistol: [0.38, 0.12, -0.12],
+  revolver: [0.38, 0.12, -0.11],
+  // Long guns sit shouldered: the butt ends beside the eye, out of frame.
+  smg: [0.4, 0.15, -0.19],
+  rifle: [0.4, 0.15, -0.19],
+  bullpup: [0.48, 0.15, -0.19],
+  shotgun: [0.36, 0.14, -0.17],
+  double: [0.36, 0.14, -0.17],
+  lmg: [0.48, 0.17, -0.22],
+  sniper: [0.36, 0.14, -0.17],
+};
+
+/** Muzzle position in the weapon's own frame (barrel toward -z, origin at the grip). */
+export function muzzleOf(archetype: WeaponArchetype): [number, number, number] {
+  const gun = getArmoryParts()?.guns[archetype];
+  const m = gun?.userData.muzzle as number[] | undefined;
+  return m && m.length === 3 ? [m[0], m[1], m[2]] : [0, 0.07, -0.4];
+}
+
+/** The loaded weapon's model. One instance per class, so mount one at a time. */
+export function WeaponModel({ archetype }: { archetype: WeaponArchetype }) {
+  const gun = getArmoryParts()?.guns[archetype];
+  return gun ? <primitive object={gun} /> : null;
+}
+
+/* ---------------------------------------------------------------- terminal */
+
+function screenTexture(lines: [string, string]): CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 384;
+  canvas.height = 216;
+  const ctx = canvas.getContext('2d');
+  if (ctx) {
+    ctx.fillStyle = '#03140a';
+    ctx.fillRect(0, 0, 384, 216);
+    ctx.strokeStyle = 'rgba(46, 230, 110, 0.45)';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(12, 12, 360, 192);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#39f07c';
+    ctx.font = '52px "Share Tech Mono", monospace';
+    ctx.fillText(lines[0], 192, 92);
+    ctx.fillStyle = 'rgba(57, 240, 124, 0.65)';
+    ctx.font = '24px "Share Tech Mono", monospace';
+    ctx.fillText(lines[1], 192, 150);
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.22)';
+    for (let y = 0; y < 216; y += 4) ctx.fillRect(0, y, 384, 1);
+  }
+  const texture = new CanvasTexture(canvas);
+  texture.colorSpace = SRGBColorSpace;
+  return texture;
+}
+
+/** One operator terminal with its own phosphor screen. Faces +z. */
+export function Terminal({
+  position,
+  lines,
+}: {
+  position: [number, number, number];
+  lines: [string, string];
+}) {
+  const [top, bottom] = lines;
+  const object = useMemo(() => {
+    const source = getArmoryParts()?.terminal;
+    if (!source) return null;
+    const clone = source.clone();
+    const screen = clone.getObjectByName('Terminal_Screen') as Mesh | undefined;
+    if (screen) {
+      screen.material = new MeshBasicMaterial({ map: screenTexture([top, bottom]), toneMapped: false });
+    }
+    return clone;
+  }, [top, bottom]);
+  return object ? <primitive object={object} position={position} /> : null;
 }
 
 /* --------------------------------------------------------------- the racks */
@@ -212,105 +186,40 @@ export interface RushState {
   startedAt: number;
 }
 
-const RACK_LEN = 6;
-const RACK_SLOTS_Z = [-4, -10.5, -17, -23.5];
-const AISLE_X = 3.4;
-const SHELF_YS = [0.55, 1.15, 1.75, 2.35];
-const GUNS_PER_SHELF = 10;
+const RACK_HALF_LEN = 3.05;
+const RACK_HALF_DEPTH = 0.24;
+/** Inner rows line the aisle from behind the spawn point to short of the range. */
+const INNER_Z = [9, 2.5, -4, -10.5, -17];
+const INNER_X = [-3.4, 3.4];
+/** Shorter outer rows, glimpsed through the open inner racks. */
+const OUTER_Z = [2.5, -4, -10.5];
+const OUTER_X = [-5.9, 5.9];
 const RUSH_FROM = -150;
 const RUSH_DUR = 0.55;
-const RUSH_STAGGER = 0.3;
+const RUSH_STAGGER = 0.16;
 
 function easeOutCubic(t: number): number {
   return 1 - Math.pow(1 - t, 3);
 }
 
-function seededRand(seed: number): () => number {
-  let s = seed;
-  return () => {
-    s = (s * 16807) % 2147483647;
-    return s / 2147483647;
-  };
+interface RackSlot {
+  x: number;
+  z: number;
+  delay: number;
+  flip: boolean;
 }
 
-/** One rack: steel frame + two InstancedMeshes of densely racked weapons. */
-function Rack({ seed }: { seed: number }) {
-  const bodies = useRef<InstancedMesh>(null);
-  const barrels = useRef<InstancedMesh>(null);
-  const count = SHELF_YS.length * GUNS_PER_SHELF;
-
-  useLayoutEffect(() => {
-    const rand = seededRand(seed);
-    const helper = new Object3D();
-    const shade = new Color();
-    let i = 0;
-    for (const y of SHELF_YS) {
-      for (let s = 0; s < GUNS_PER_SHELF; s++) {
-        const z = -RACK_LEN / 2 + 0.35 + s * ((RACK_LEN - 0.7) / (GUNS_PER_SHELF - 1));
-        const lean = (rand() - 0.5) * 0.12;
-        const h = 0.34 + rand() * 0.22;
-        // Body (racked upright)
-        helper.position.set((rand() - 0.5) * 0.1, y + h / 2, z);
-        helper.rotation.set(lean, rand() * 0.3 - 0.15, 0);
-        helper.scale.set(0.8 + rand() * 0.5, h / 0.45, 0.9 + rand() * 0.4);
-        helper.updateMatrix();
-        bodies.current?.setMatrixAt(i, helper.matrix);
-        shade.setHSL(0.58 + rand() * 0.04, 0.06 + rand() * 0.05, 0.16 + rand() * 0.1);
-        bodies.current?.setColorAt(i, shade);
-        // Barrel above the body
-        helper.position.set(helper.position.x, y + h + 0.1, z);
-        helper.scale.set(1, 0.7 + rand() * 0.6, 1);
-        helper.updateMatrix();
-        barrels.current?.setMatrixAt(i, helper.matrix);
-        barrels.current?.setColorAt(i, shade);
-        i++;
-      }
-    }
-    for (const inst of [bodies.current, barrels.current]) {
-      if (!inst) continue;
-      inst.instanceMatrix.needsUpdate = true;
-      if (inst.instanceColor) inst.instanceColor.needsUpdate = true;
-    }
-  }, [seed, count]);
-
-  return (
-    <group>
-      {/* Uprights */}
-      {([-1, 1] as const).map((end) => (
-        <mesh key={end} position={[0, 1.45, (end * RACK_LEN) / 2]}>
-          <boxGeometry args={[0.5, 2.9, 0.07]} />
-          <meshStandardMaterial color="#c8ccd0" roughness={0.5} metalness={0.35} />
-        </mesh>
-      ))}
-      {/* Shelves */}
-      {SHELF_YS.map((y) => (
-        <mesh key={y} position={[0, y - 0.02, 0]}>
-          <boxGeometry args={[0.55, 0.04, RACK_LEN]} />
-          <meshStandardMaterial color="#d4d8dc" roughness={0.45} metalness={0.3} />
-        </mesh>
-      ))}
-      {/* Back rail */}
-      <mesh position={[0.24, 1.45, 0]}>
-        <boxGeometry args={[0.03, 2.9, RACK_LEN]} />
-        <meshStandardMaterial color="#dde1e4" roughness={0.5} metalness={0.25} transparent opacity={0.35} />
-      </mesh>
-      <instancedMesh ref={bodies} args={[undefined, undefined, count]}>
-        <boxGeometry args={[0.075, 0.45, 0.12]} />
-        <meshStandardMaterial metalness={0.5} roughness={0.45} />
-      </instancedMesh>
-      <instancedMesh ref={barrels} args={[undefined, undefined, count]}>
-        <cylinderGeometry args={[0.012, 0.012, 0.24, 6]} />
-        <meshStandardMaterial metalness={0.5} roughness={0.45} />
-      </instancedMesh>
-    </group>
-  );
-}
+// Arrival order: nearest racks first, alternating sides, outer rows trailing.
+const RACKS: RackSlot[] = [
+  ...INNER_Z.flatMap((z) => INNER_X.map((x) => ({ x, z }))),
+  ...OUTER_Z.flatMap((z) => OUTER_X.map((x) => ({ x, z }))),
+].map((slot, i) => ({ ...slot, delay: i * RUSH_STAGGER, flip: i % 3 === 1 }));
 
 /**
- * Both aisles of racks plus the film's rush-in: each rack races from deep in
- * the void (z=-150 → slot) with a cubic ease-out over ~0.55s, staggered so
- * they thunder in one after another; every arrival kicks store.shake.
- * `mode: 'placed'` (repeat visits) mounts them already parked.
+ * The racks plus the film's rush-in: each one races from deep in the void
+ * (z=-150 to its slot) with a cubic ease-out, staggered so they thunder in
+ * one after another; every arrival kicks store.shake. `mode: 'placed'`
+ * (repeat visits) mounts them already parked.
  */
 export function RackAisles({ rush }: { rush: MutableRefObject<RushState> }) {
   const store = useSceneStore();
@@ -318,18 +227,13 @@ export function RackAisles({ rush }: { rush: MutableRefObject<RushState> }) {
   const arrived = useRef<boolean[]>([]);
 
   const racks = useMemo(() => {
-    const list: { x: number; z: number; delay: number; seed: number }[] = [];
-    RACK_SLOTS_Z.forEach((z, i) => {
-      // Alternate sides so arrivals hammer left-right-left-right.
-      list.push({ x: -AISLE_X, z, delay: i * 2 * RUSH_STAGGER, seed: 100 + i });
-      list.push({ x: AISLE_X, z, delay: (i * 2 + 1) * RUSH_STAGGER, seed: 200 + i });
-    });
-    return list;
+    const source = getArmoryParts()?.rack;
+    return source ? RACKS.map(() => source.clone()) : [];
   }, []);
 
   useFrame(() => {
     const state = rush.current;
-    racks.forEach((rack, i) => {
+    RACKS.forEach((rack, i) => {
       const g = groups.current[i];
       if (!g) return;
       if (state.mode === 'hidden') {
@@ -346,29 +250,32 @@ export function RackAisles({ rush }: { rush: MutableRefObject<RushState> }) {
       g.position.z = RUSH_FROM + (rack.z - RUSH_FROM) * easeOutCubic(p);
       if (p >= 1 && !arrived.current[i]) {
         arrived.current[i] = true;
-        store.shake(0.14);
+        store.shake(0.1);
       }
     });
   });
 
   return (
     <>
-      {racks.map((rack, i) => (
+      {racks.map((object, i) => (
         <group
           key={i}
           ref={(g) => void (groups.current[i] = g)}
-          position={[rack.x, 0, RUSH_FROM]}
-          rotation={[0, rack.x < 0 ? 0 : Math.PI, 0]}
+          position={[RACKS[i].x, 0, RUSH_FROM]}
+          rotation={[0, RACKS[i].flip ? Math.PI : 0, 0]}
         >
-          <Rack seed={rack.seed} />
+          <primitive object={object} />
         </group>
       ))}
     </>
   );
 }
 
-export const RUSH_TOTAL_MS = (RACK_SLOTS_Z.length * 2 - 1) * RUSH_STAGGER * 1000 + RUSH_DUR * 1000 + 400;
-export const RACK_COLLIDERS = RACK_SLOTS_Z.flatMap((z) => [
-  { minX: -AISLE_X - 0.5, maxX: -AISLE_X + 0.35, minZ: z - RACK_LEN / 2, maxZ: z + RACK_LEN / 2 },
-  { minX: AISLE_X - 0.35, maxX: AISLE_X + 0.5, minZ: z - RACK_LEN / 2, maxZ: z + RACK_LEN / 2 },
-]);
+export const RUSH_TOTAL_MS = (RACKS.length - 1) * RUSH_STAGGER * 1000 + RUSH_DUR * 1000 + 400;
+
+export const RACK_COLLIDERS: Collider2D[] = RACKS.map((rack) => ({
+  minX: rack.x - RACK_HALF_DEPTH,
+  maxX: rack.x + RACK_HALF_DEPTH,
+  minZ: rack.z - RACK_HALF_LEN,
+  maxZ: rack.z + RACK_HALF_LEN,
+}));

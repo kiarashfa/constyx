@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useRef, useState, type MutableRefObject } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObject } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
+import { Environment, Lightformer } from '@react-three/drei';
 import {
   Color,
   Object3D,
@@ -12,6 +13,7 @@ import {
 } from 'three';
 import { SceneShell } from '../../engine3d/SceneShell';
 import { Interactable } from '../../engine3d/Interactable';
+import { RendererLook } from '../../engine3d/RendererLook';
 import {
   useSceneStore,
   type Collider2D,
@@ -20,12 +22,26 @@ import {
 } from '../../engine3d/store';
 import type { SceneComponentProps } from '../../scenes';
 import { sfxGunshot } from '../../../../engine/audio';
-import { RackAisles, RACK_COLLIDERS, RUSH_TOTAL_MS, WeaponModel, type RushState } from './models';
+import {
+  HOLD,
+  RACK_COLLIDERS,
+  RUSH_TOTAL_MS,
+  RackAisles,
+  Terminal,
+  VOID_WHITE,
+  WeaponModel,
+  getArmoryParts,
+  muzzleOf,
+  preloadArmory,
+  type RushState,
+} from './models';
 import { CatalogOverlay } from './CatalogOverlay';
 import { ArmoryHud, type RangeScore } from './ArmoryHud';
 import type { WeaponEntry } from './types';
 
-const VOID_WHITE = '#f2f5f3';
+/** Awaited by the scene route behind the jack-in transition. */
+export const preload = preloadArmory;
+
 const RUSH_SEEN_KEY = 'armory.rush.v1';
 const TARGET_Z = -36;
 const MAX_MARKERS = 48;
@@ -37,63 +53,65 @@ const COLLIDERS: Collider2D[] = [
   { minX: -8.5, maxX: -7.6, minZ: -42, maxZ: 14 }, // side bounds
   { minX: 7.6, maxX: 8.5, minZ: -42, maxZ: 14 },
   { minX: -8.5, maxX: 8.5, minZ: -42.5, maxZ: -41.5 }, // range back wall
-  { minX: -0.5, maxX: 0.5, minZ: TARGET_Z - 0.4, maxZ: TARGET_Z + 0.1 }, // target stand
-  { minX: 1.1, maxX: 1.9, minZ: 9.7, maxZ: 10.3 }, // manifest pedestal
-  { minX: -1.9, maxX: -1.1, minZ: 9.7, maxZ: 10.3 }, // replay pedestal
-  { minX: 2.1, maxX: 2.9, minZ: -27.3, maxZ: -26.7 }, // range reset pedestal
+  { minX: -0.3, maxX: 0.3, minZ: TARGET_Z - 0.28, maxZ: TARGET_Z + 0.16 }, // target stand
+  { minX: 1.27, maxX: 1.73, minZ: 9.85, maxZ: 10.15 }, // manifest terminal
+  { minX: -1.73, maxX: -1.27, minZ: 9.85, maxZ: 10.15 }, // recall terminal
+  { minX: 2.27, maxX: 2.73, minZ: -27.15, maxZ: -26.85 }, // range reset terminal
   ...RACK_COLLIDERS,
 ];
 
 /* ------------------------------------------------------------ environment */
 
-function Pedestal({ position }: { position: [number, number, number] }) {
-  return (
-    <group position={position}>
-      <mesh position={[0, 0.52, 0]}>
-        <boxGeometry args={[0.55, 1.04, 0.45]} />
-        <meshStandardMaterial color="#c9ced2" roughness={0.5} metalness={0.3} />
-      </mesh>
-      <mesh position={[0, 0.97, 0.18]} rotation={[-0.5, 0, 0]}>
-        <planeGeometry args={[0.4, 0.26]} />
-        <meshStandardMaterial color="#04130a" emissive="#0d8a34" emissiveIntensity={0.9} />
-      </mesh>
-    </group>
-  );
-}
-
+/**
+ * Shadowless studio light for the void: a broad overhead source, softer walls
+ * and a bright floor bounce, built in place (no HDR download).
+ */
 function VoidEnvironment() {
   return (
     <>
+      <RendererLook exposure={1.05} />
       <color attach="background" args={[VOID_WHITE]} />
-      <fog attach="fog" args={[VOID_WHITE, 25, 110]} />
-      <ambientLight intensity={0.95} />
-      <hemisphereLight args={['#ffffff', '#d9dcd8', 0.5]} />
-      <directionalLight position={[6, 12, 4]} intensity={0.55} />
+      <fog attach="fog" args={[VOID_WHITE, 34, 112]} />
+      <Environment resolution={256} frames={1}>
+        <color attach="background" args={['#b9beb9']} />
+        <Lightformer form="rect" intensity={2.6} position={[0, 7, 0]} rotation-x={Math.PI / 2} scale={[16, 16, 1]} />
+        <Lightformer form="rect" intensity={1.5} position={[0, 3, 9]} scale={[18, 6, 1]} />
+        <Lightformer form="rect" intensity={1.1} position={[0, 3, -9]} scale={[18, 6, 1]} />
+        <Lightformer form="rect" intensity={1.1} position={[-9, 3, 0]} rotation-y={Math.PI / 2} scale={[18, 6, 1]} />
+        <Lightformer form="rect" intensity={1.1} position={[9, 3, 0]} rotation-y={Math.PI / 2} scale={[18, 6, 1]} />
+        <Lightformer form="rect" intensity={0.9} position={[0, -4, 0]} rotation-x={Math.PI / 2} scale={[30, 30, 1]} />
+      </Environment>
 
+      {/* Floor: pure void colour, unlit, so it meets the background without a seam. */}
       <mesh rotation={[-Math.PI / 2, 0, 0]}>
-        <circleGeometry args={[70, 48]} />
-        <meshStandardMaterial color={VOID_WHITE} roughness={0.9} />
+        <circleGeometry args={[130, 48]} />
+        <meshBasicMaterial color={VOID_WHITE} toneMapped={false} fog={false} />
       </mesh>
 
-      {/* Firing line + lane guide */}
-      <mesh position={[0, 0.011, -28]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[8, 0.4]} />
-        <meshStandardMaterial color="#052312" emissive="#0d8a34" emissiveIntensity={0.5} />
+      {/* Firing line + lane guide, painted on the floor */}
+      <mesh position={[0, 0.004, -28]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[8, 0.12]} />
+        <meshBasicMaterial color="#1c7a3e" />
       </mesh>
-      <mesh position={[0, 0.008, -32]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[0.12, 8]} />
-        <meshStandardMaterial color="#9aa4a0" roughness={0.8} />
+      <mesh position={[0, 0.004, -32]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[0.03, 8]} />
+        <meshBasicMaterial color="#a9b3ad" />
       </mesh>
     </>
   );
 }
 
-/** Silhouette target: scoring zones stacked by tiny z-offsets. */
+/**
+ * Silhouette target. The printed board comes from the scene file; scoring is
+ * done against invisible zone meshes that copy the print, stacked by tiny
+ * z-offsets so the nearest (highest-value) zone wins the ray.
+ */
 function RangeTarget({ zonesRef }: { zonesRef: MutableRefObject<Mesh[]> }) {
   const board = useRef<Mesh>(null);
   const torso = useRef<Mesh>(null);
   const head = useRef<Mesh>(null);
   const chest = useRef<Mesh>(null);
+  const model = useMemo(() => getArmoryParts()?.target ?? null, []);
 
   useEffect(() => {
     const zones = [chest.current, head.current, torso.current, board.current].filter(
@@ -105,35 +123,27 @@ function RangeTarget({ zonesRef }: { zonesRef: MutableRefObject<Mesh[]> }) {
 
   return (
     <group position={[0, 0, TARGET_Z]}>
-      {/* Stand */}
-      <mesh position={[0, 0.7, -0.06]}>
-        <boxGeometry args={[0.08, 1.4, 0.08]} />
-        <meshStandardMaterial color="#8d9691" roughness={0.7} />
+      {model && <primitive object={model} />}
+      <mesh ref={board} position={[0, 1.45, 0.005]} userData={{ score: 2, zone: 'board' }}>
+        <planeGeometry args={[0.6, 1.05]} />
+        <meshBasicMaterial visible={false} />
       </mesh>
-      {/* Board */}
-      <mesh ref={board} position={[0, 1.65, 0]} userData={{ score: 2, zone: 'board' }}>
-        <planeGeometry args={[0.75, 1.7]} />
-        <meshStandardMaterial color="#d9cba6" roughness={0.9} />
-      </mesh>
-      {/* Silhouette torso (scaled disc) */}
       <mesh
         ref={torso}
-        position={[0, 1.45, 0.006]}
-        scale={[0.27, 0.55, 1]}
+        position={[0, 1.36, 0.008]}
+        scale={[0.215, 0.37, 1]}
         userData={{ score: 6, zone: 'torso' }}
       >
         <circleGeometry args={[1, 24]} />
-        <meshStandardMaterial color="#272a2d" roughness={0.85} />
+        <meshBasicMaterial visible={false} />
       </mesh>
-      {/* Head */}
-      <mesh ref={head} position={[0, 2.14, 0.006]} userData={{ score: 10, zone: 'head' }}>
-        <circleGeometry args={[0.115, 20]} />
-        <meshStandardMaterial color="#272a2d" roughness={0.85} />
+      <mesh ref={head} position={[0, 1.82, 0.008]} userData={{ score: 10, zone: 'head' }}>
+        <circleGeometry args={[0.095, 20]} />
+        <meshBasicMaterial visible={false} />
       </mesh>
-      {/* Chest ring (the heart shot) */}
-      <mesh ref={chest} position={[0, 1.7, 0.012]} userData={{ score: 9, zone: 'chest' }}>
-        <circleGeometry args={[0.085, 18]} />
-        <meshStandardMaterial color="#3a3f43" roughness={0.7} emissive="#0d8a34" emissiveIntensity={0.15} />
+      <mesh ref={chest} position={[0, 1.5, 0.011]} userData={{ score: 9, zone: 'chest' }}>
+        <circleGeometry args={[0.07, 18]} />
+        <meshBasicMaterial visible={false} />
       </mesh>
     </group>
   );
@@ -152,31 +162,41 @@ function ViewModel({ weapon, flash }: { weapon: WeaponEntry; flash: MutableRefOb
   const muzzle = useRef<Mesh>(null);
   const fwd = useRef(new Vector3());
   const right = useRef(new Vector3());
+  const up = useRef(new Vector3());
+  const hold = HOLD[weapon.archetype];
+  const tip = useMemo(() => muzzleOf(weapon.archetype), [weapon.archetype]);
 
   useFrame(({ clock }) => {
     const g = group.current;
     if (!g) return;
     camera.getWorldDirection(fwd.current);
-    right.current.crossVectors(fwd.current, g.up).normalize();
+    right.current.set(1, 0, 0).applyQuaternion(camera.quaternion);
+    up.current.set(0, 1, 0).applyQuaternion(camera.quaternion);
+    const now = performance.now();
+    const firing = now < flash.current.until;
+    // Recoil: a short shove back and up that settles within ~120 ms.
+    const kick = Math.max(0, 1 - (now - (flash.current.until - 50)) / 120);
     g.position
       .copy(camera.position)
-      .addScaledVector(fwd.current, 0.5)
-      .addScaledVector(right.current, 0.21)
-      .add({ x: 0, y: -0.17 + Math.sin(clock.elapsedTime * 1.8) * 0.004, z: 0 } as Vector3);
+      .addScaledVector(fwd.current, hold[0] - kick * 0.035)
+      .addScaledVector(right.current, hold[1])
+      .addScaledVector(up.current, hold[2] + kick * 0.008 + Math.sin(clock.elapsedTime * 1.8) * 0.003);
     g.quaternion.copy(camera.quaternion);
-    const firing = performance.now() < flash.current.until;
-    if (lightRef.current) lightRef.current.intensity = firing ? 8 : 0;
-    if (muzzle.current) muzzle.current.visible = firing;
+    if (lightRef.current) lightRef.current.intensity = firing ? 6 : 0;
+    if (muzzle.current) {
+      muzzle.current.visible = firing;
+      if (firing) muzzle.current.rotation.z = now;
+    }
   });
 
   return (
     <group ref={group}>
       <WeaponModel archetype={weapon.archetype} />
-      <mesh ref={muzzle} position={[0, 0.035, -0.55]} visible={false}>
-        <sphereGeometry args={[0.05, 8, 8]} />
-        <meshStandardMaterial color="#fff6d8" emissive="#ffd873" emissiveIntensity={4} />
+      <mesh ref={muzzle} position={[tip[0], tip[1], tip[2] - 0.05]} visible={false}>
+        <octahedronGeometry args={[0.035, 0]} />
+        <meshBasicMaterial color="#ffe9a8" toneMapped={false} />
       </mesh>
-      <pointLight ref={lightRef} position={[0, 0.05, -0.5]} color="#ffd873" distance={6} intensity={0} />
+      <pointLight ref={lightRef} position={[tip[0], tip[1], tip[2] - 0.08]} color="#ffd873" distance={6} intensity={0} />
     </group>
   );
 }
@@ -344,7 +364,7 @@ function SceneInteractables({
   return (
     <>
       <Interactable label="OPEN ARMORY MANIFEST" radius={2.6} onInteract={onManifest}>
-        <Pedestal position={[1.5, 0, 10]} />
+        <Terminal position={[1.5, 0, 10]} lines={['MANIFEST', 'ORDNANCE INDEX']} />
       </Interactable>
       <Interactable
         label="RE-RUN SHELF PROTOCOL"
@@ -354,7 +374,7 @@ function SceneInteractables({
           store.toast('Ordnance recall. Stand by.', 1800);
         }}
       >
-        <Pedestal position={[-1.5, 0, 10]} />
+        <Terminal position={[-1.5, 0, 10]} lines={['RECALL', 'SHELF PROTOCOL']} />
       </Interactable>
       <Interactable
         label="RESET RANGE SCORE"
@@ -364,7 +384,7 @@ function SceneInteractables({
           store.toast('Range score zeroed.', 2000);
         }}
       >
-        <Pedestal position={[2.5, 0, -27]} />
+        <Terminal position={[2.5, 0, -27]} lines={['RESET', 'RANGE SCORE']} />
       </Interactable>
     </>
   );
