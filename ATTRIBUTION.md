@@ -18,9 +18,18 @@ Diffuse maps only, downsized to 512² JPEG.
 | `src/pages/sanctuary/scenes/bridge/textures/concrete.jpg` | [concrete_wall_008](https://polyhaven.com/a/concrete_wall_008) | Adams Street viaduct arch |
 | `src/pages/sanctuary/scenes/bridge/textures/brick.jpg` | [dark_brick_wall](https://polyhaven.com/a/dark_brick_wall) | Adams Street embankment walls |
 
+## Scene models (CC0 materials, Poly Haven)
+
+Scene geometry is original modelling. The Poly Haven maps below are blended into the baked scene textures at 1K.
+
+| File | Source | Used in |
+|---|---|---|
+| `src/pages/simulations/scenes/white-room/assets/white-room.glb` | [leather_red_02](https://polyhaven.com/a/leather_red_02), [dark_wood](https://polyhaven.com/a/dark_wood) | White Room armchair leather and timber frame |
+
 ## Visual references (not shipped)
 
 - "The Matrix – Neo's Office" 3D recreation renders by Adrien Isakovic: staging reference for the MetaCortex scene.
+- Film stills from *The Matrix* (1999), © Warner Bros.: prop and staging reference for the White Room (wingback armchairs, console television, wine table).
 - Film stills from *The Matrix* (1999), © Warner Bros.: staging reference for MetaCortex (window washers) and Adams Street (underpass, 1965 Lincoln Continental). The location is the 1926 Elizabeth Street railway viaduct, Haymarket, Sydney.
 
 ## Shader techniques

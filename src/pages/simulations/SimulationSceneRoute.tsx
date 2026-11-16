@@ -19,7 +19,9 @@ export function SimulationSceneRoute() {
   useEffect(() => {
     if (!def) return;
     let alive = true;
-    def.load().then((mod) => {
+    def.load().then(async (mod) => {
+      // A failed asset warm-up must not strand the visitor on the jack-in.
+      await mod.preload?.().catch(() => undefined);
       if (alive) setScene(() => mod.default);
     });
     return () => {

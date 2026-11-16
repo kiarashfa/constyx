@@ -5,6 +5,15 @@ export interface SceneComponentProps {
   onExit: () => void;
 }
 
+export interface SimulationSceneModule {
+  default: ComponentType<SceneComponentProps>;
+  /**
+   * Optional asset warm-up (scene .glb, textures). The route awaits it behind
+   * the jack-in transition so the scene mounts fully loaded.
+   */
+  preload?: () => Promise<unknown>;
+}
+
 export interface SimulationSceneDef {
   /** Slug — route param under /simulations/:sceneId. */
   id: string;
@@ -14,7 +23,7 @@ export interface SimulationSceneDef {
    * Lazy chunk loader. Everything 3D (three/r3f/drei + engine3d + the scene)
    * lives behind this dynamic import so the main bundle never pays for it.
    */
-  load: () => Promise<{ default: ComponentType<SceneComponentProps> }>;
+  load: () => Promise<SimulationSceneModule>;
 }
 
 export const SIMULATION_SCENES: SimulationSceneDef[] = [

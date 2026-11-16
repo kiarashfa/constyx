@@ -1,200 +1,155 @@
-import { useRef, useState } from 'react';
-import { useFrame, type ThreeElements } from '@react-three/fiber';
-import { ContactShadows, RoundedBox } from '@react-three/drei';
-import type { Mesh, MeshStandardMaterial } from 'three';
+import { useMemo, useState } from 'react';
+import { useFrame } from '@react-three/fiber';
+import { Environment, Lightformer } from '@react-three/drei';
+import { Color, MeshBasicMaterial, MeshStandardMaterial, type Mesh, type Object3D } from 'three';
 import { SceneShell } from '../../engine3d/SceneShell';
 import { Interactable } from '../../engine3d/Interactable';
+import { RendererLook } from '../../engine3d/RendererLook';
+import { getGLTF, preloadGLTF } from '../../engine3d/assets';
 import { useSceneStore, type Collider2D } from '../../engine3d/store';
 import type { SceneComponentProps } from '../../scenes';
 import { useAmbience, sfxTvClick } from '../../../../engine/audio';
 import { TvOverlay } from './TvOverlay';
+import sceneUrl from './assets/white-room.glb?url';
 
-type GroupProps = ThreeElements['group'];
+/** Awaited by the scene route behind the jack-in transition. */
+export const preload = () => preloadGLTF(sceneUrl);
 
-const VOID_WHITE = '#f2f5f3';
-const LEATHER = '#571e1e';
-const LEATHER_DARK = '#3d1414';
-const WOOD = '#5a3a22';
-const WOOD_DARK = '#392412';
-const BRASS = '#967a44';
+/** The void: floor, horizon and sky are one colour, so the room has no edges. */
+const VOID_WHITE = '#eef2ee';
 
 /**
- * Collision layout: an outer fence (the "void" is walkable but bounded) plus
- * boxes around each furniture piece. Coordinates mirror the models below.
+ * Collision layout: an outer fence (the void is walkable but bounded) plus a
+ * box per prop. Prop boxes mirror the placements baked into the scene file.
  */
 const COLLIDERS: Collider2D[] = [
   { minX: -17, maxX: 17, minZ: -17.5, maxZ: -16.5 },
   { minX: -17, maxX: 17, minZ: 16.5, maxZ: 17.5 },
   { minX: -17.5, maxX: -16.5, minZ: -17, maxZ: 17 },
   { minX: 16.5, maxX: 17.5, minZ: -17, maxZ: 17 },
-  { minX: -2.35, maxX: -1.05, minZ: -1.45, maxZ: -0.15 }, // left chair
-  { minX: 1.05, maxX: 2.35, minZ: -1.45, maxZ: -0.15 }, // right chair
-  { minX: -0.85, maxX: 0.85, minZ: -2.75, maxZ: -1.85 }, // television
+  { minX: -1.53, maxX: -0.53, minZ: -0.55, maxZ: 0.49 }, // left chair
+  { minX: 0.53, maxX: 1.53, minZ: -0.55, maxZ: 0.49 }, // right chair
+  { minX: -0.29, maxX: 0.29, minZ: -2.74, maxZ: -2.24 }, // television
+  { minX: -0.48, maxX: -0.11, minZ: -0.87, maxZ: -0.51 }, // wine table
 ];
 
-/** Ornate high-backed leather wingback, film-style, built from primitives. */
-function WingbackChair(props: GroupProps) {
-  return (
-    <group {...props}>
-      <RoundedBox args={[0.62, 0.18, 0.58]} radius={0.05} position={[0, 0.47, 0.05]}>
-        <meshStandardMaterial color={LEATHER} roughness={0.55} />
-      </RoundedBox>
-      <RoundedBox args={[0.66, 0.34, 0.62]} radius={0.04} position={[0, 0.26, 0.03]}>
-        <meshStandardMaterial color={LEATHER_DARK} roughness={0.6} />
-      </RoundedBox>
-      <RoundedBox
-        args={[0.68, 1.08, 0.16]}
-        radius={0.06}
-        position={[0, 1.0, -0.27]}
-        rotation={[-0.09, 0, 0]}
-      >
-        <meshStandardMaterial color={LEATHER} roughness={0.5} />
-      </RoundedBox>
-      {[-1, 1].map((side) => (
-        <group key={side}>
-          {/* Wing */}
-          <RoundedBox
-            args={[0.13, 0.62, 0.34]}
-            radius={0.05}
-            position={[side * 0.31, 1.14, -0.12]}
-            rotation={[0, side * -0.45, 0]}
-          >
-            <meshStandardMaterial color={LEATHER} roughness={0.5} />
-          </RoundedBox>
-          {/* Arm */}
-          <RoundedBox args={[0.15, 0.26, 0.55]} radius={0.06} position={[side * 0.315, 0.63, 0.06]}>
-            <meshStandardMaterial color={LEATHER} roughness={0.55} />
-          </RoundedBox>
-          {/* Arm-front roll */}
-          <mesh position={[side * 0.315, 0.58, 0.31]} rotation={[0, 0, Math.PI / 2]}>
-            <cylinderGeometry args={[0.08, 0.08, 0.15, 16]} />
-            <meshStandardMaterial color={LEATHER_DARK} roughness={0.5} />
-          </mesh>
-          {/* Legs */}
-          {[-1, 1].map((frontBack) => (
-            <mesh key={frontBack} position={[side * 0.26, 0.08, frontBack * 0.22 + 0.03]}>
-              <cylinderGeometry args={[0.025, 0.035, 0.16, 10]} />
-              <meshStandardMaterial color={WOOD_DARK} roughness={0.7} />
-            </mesh>
-          ))}
-        </group>
-      ))}
-    </group>
-  );
+interface RoomParts {
+  chairs: Object3D[];
+  tv: Object3D;
+  table: Object3D;
+  floor: Object3D;
+  screen: MeshStandardMaterial | null;
 }
 
-/** 1950s furniture-style console television with a curved glass screen. */
-function ConsoleTV({ screenRef, ...props }: GroupProps & { screenRef: React.RefObject<Mesh | null> }) {
-  return (
-    <group {...props}>
-      <RoundedBox args={[1.15, 0.72, 0.48]} radius={0.03} position={[0, 0.62, 0]}>
-        <meshStandardMaterial color={WOOD} roughness={0.45} />
-      </RoundedBox>
-      {/* Splayed tapered legs */}
-      {[-1, 1].map((sx) =>
-        [-1, 1].map((sz) => (
-          <mesh
-            key={`${sx}${sz}`}
-            position={[sx * 0.47, 0.13, sz * 0.15]}
-            rotation={[sz * 0.07, 0, sx * -0.09]}
-          >
-            <cylinderGeometry args={[0.016, 0.032, 0.27, 10]} />
-            <meshStandardMaterial color={WOOD_DARK} roughness={0.6} />
-          </mesh>
-        )),
-      )}
-      {/* Screen bezel (left two-thirds of the cabinet face) */}
-      <RoundedBox args={[0.64, 0.52, 0.05]} radius={0.02} position={[-0.17, 0.66, 0.235]}>
-        <meshStandardMaterial color={WOOD_DARK} roughness={0.5} />
-      </RoundedBox>
-      {/* Curved CRT glass — a squashed sphere bulging out of the bezel */}
-      <mesh ref={screenRef} position={[-0.17, 0.66, 0.2]} scale={[0.29, 0.23, 0.09]}>
-        <sphereGeometry args={[1, 24, 18]} />
-        <meshStandardMaterial
-          color="#0b110d"
-          roughness={0.25}
-          metalness={0.1}
-          emissive="#182b1f"
-          emissiveIntensity={0.4}
-        />
-      </mesh>
-      {/* Speaker grille */}
-      <RoundedBox args={[0.3, 0.5, 0.04]} radius={0.02} position={[0.35, 0.68, 0.235]}>
-        <meshStandardMaterial color="#2c1f16" roughness={0.95} />
-      </RoundedBox>
-      {/* Channel + volume knobs */}
-      {[0.5, 0.36].map((y) => (
-        <mesh key={y} position={[0.35, y - 0.06, 0.26]} rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[0.032, 0.032, 0.035, 14]} />
-          <meshStandardMaterial color={BRASS} roughness={0.35} metalness={0.5} />
-        </mesh>
-      ))}
-    </group>
-  );
-}
+/** Pull the named props out of the scene file and fix up the two special materials. */
+function prepareRoom(): RoomParts | null {
+  const gltf = getGLTF(sceneUrl);
+  if (!gltf) return null;
+  const find = (name: string) => gltf.scene.getObjectByName(name);
+  const chairL = find('Chair_L');
+  const chairR = find('Chair_R');
+  const tv = find('TV');
+  const table = find('Table');
+  const floor = find('Floor') as Mesh | undefined;
+  if (!chairL || !chairR || !tv || !table || !floor) return null;
 
-function ChairWithInspect(props: GroupProps) {
-  const store = useSceneStore();
-  return (
-    <Interactable
-      label="INSPECT CHAIR"
-      radius={2.3}
-      onInteract={() =>
-        store.toast('Oxblood leather, high back. Older than the simulation pretending to contain it.')
-      }
-    >
-      <WingbackChair {...props} />
-    </Interactable>
-  );
+  // The floor is pure void colour with the baked contact shadows multiplied in.
+  // Unlit and outside tone mapping, so it meets the background without a seam.
+  const baked = floor.material as MeshStandardMaterial;
+  if (!(floor.material instanceof MeshBasicMaterial)) {
+    floor.material = new MeshBasicMaterial({
+      map: baked.map,
+      color: new Color(VOID_WHITE),
+      toneMapped: false,
+      fog: false,
+    });
+  }
+
+  const screenMesh = find('TV_Screen') as Mesh | undefined;
+  const screen = (screenMesh?.material as MeshStandardMaterial | undefined) ?? null;
+  if (screen) {
+    screen.emissive = new Color('#1d3226');
+    screen.envMapIntensity = 1.4;
+  }
+  return { chairs: [chairL, chairR], tv, table, floor, screen };
 }
 
 /** Idle CRT flicker so the dead screen still feels powered. */
-function ScreenFlicker({ screenRef }: { screenRef: React.RefObject<Mesh | null> }) {
+function ScreenFlicker({ screen }: { screen: MeshStandardMaterial | null }) {
   useFrame(({ clock }) => {
-    const mat = screenRef.current?.material as MeshStandardMaterial | undefined;
-    if (!mat) return;
+    if (!screen) return;
     const t = clock.elapsedTime;
-    mat.emissiveIntensity = 0.35 + 0.12 * Math.sin(t * 2.1) + 0.05 * Math.sin(t * 13.7);
+    screen.emissiveIntensity = 0.5 + 0.16 * Math.sin(t * 2.1) + 0.07 * Math.sin(t * 13.7);
   });
   return null;
 }
 
+/**
+ * Shadowless studio light for the void: a broad overhead source, softer walls
+ * and a bright floor bounce, built in place (no HDR download).
+ */
+function VoidLight() {
+  return (
+    <Environment resolution={256} frames={1}>
+      <color attach="background" args={['#b9beb9']} />
+      <Lightformer form="rect" intensity={2.6} position={[0, 7, 0]} rotation-x={Math.PI / 2} scale={[16, 16, 1]} />
+      <Lightformer form="rect" intensity={1.5} position={[0, 3, 9]} scale={[18, 6, 1]} />
+      <Lightformer form="rect" intensity={1.1} position={[0, 3, -9]} scale={[18, 6, 1]} />
+      <Lightformer form="rect" intensity={1.1} position={[-9, 3, 0]} rotation-y={Math.PI / 2} scale={[18, 6, 1]} />
+      <Lightformer form="rect" intensity={1.1} position={[9, 3, 0]} rotation-y={Math.PI / 2} scale={[18, 6, 1]} />
+      <Lightformer form="rect" intensity={0.9} position={[0, -4, 0]} rotation-x={Math.PI / 2} scale={[30, 30, 1]} />
+    </Environment>
+  );
+}
+
 function RoomContents({ onSwitchOn }: { onSwitchOn: () => void }) {
-  const screenRef = useRef<Mesh>(null);
+  const store = useSceneStore();
+  const room = useMemo(prepareRoom, []);
   return (
     <>
+      <RendererLook exposure={1.05} />
       <color attach="background" args={[VOID_WHITE]} />
-      <fog attach="fog" args={[VOID_WHITE, 9, 24]} />
-      <ambientLight intensity={0.95} />
-      <directionalLight position={[4, 7, 3]} intensity={0.65} />
-      <directionalLight position={[-5, 4, -2]} intensity={0.25} />
-
-      {/* The endless white floor */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
-        <circleGeometry args={[30, 48]} />
-        <meshStandardMaterial color={VOID_WHITE} roughness={0.9} />
-      </mesh>
-      <ContactShadows position={[0, 0.01, -1.4]} scale={10} far={3} blur={2.6} opacity={0.32} frames={1} />
-
-      <ChairWithInspect position={[-1.7, 0, -0.8]} rotation={[0, 0.55, 0]} />
-      <ChairWithInspect position={[1.7, 0, -0.8]} rotation={[0, -0.55, 0]} />
-
-      <Interactable label="SWITCH ON THE ARCHIVE" radius={3} onInteract={onSwitchOn}>
-        <ConsoleTV position={[0, 0, -2.3]} screenRef={screenRef} />
-      </Interactable>
-      <ScreenFlicker screenRef={screenRef} />
+      <VoidLight />
+      {room && (
+        <>
+          <primitive object={room.floor} />
+          {room.chairs.map((chair) => (
+            <Interactable
+              key={chair.name}
+              label="INSPECT CHAIR"
+              radius={2.3}
+              onInteract={() =>
+                store.toast('Oxblood leather, cracked and button-tufted. Older than the simulation pretending to contain it.')
+              }
+            >
+              <primitive object={chair} />
+            </Interactable>
+          ))}
+          <Interactable
+            label="INSPECT REMOTE"
+            radius={1.9}
+            onInteract={() => store.toast('One button would be enough. It has several, for your comfort.')}
+          >
+            <primitive object={room.table} />
+          </Interactable>
+          <Interactable label="SWITCH ON THE ARCHIVE" radius={3} onInteract={onSwitchOn}>
+            <primitive object={room.tv} />
+          </Interactable>
+          <ScreenFlicker screen={room.screen} />
+        </>
+      )}
     </>
   );
 }
 
-/** The White Room — the Construct's broadcast-archive tableau. */
+/** The White Room: the Construct's broadcast-archive tableau. */
 export default function WhiteRoomScene({ onExit }: SceneComponentProps) {
   useAmbience('whiteRoom');
   const [tvOpen, setTvOpen] = useState(false);
   return (
     <SceneShell
       title="WHITE ROOM"
-      spawn={[0, 0, 5.5]}
+      spawn={[0.35, 0, 3.6]}
       colliders={COLLIDERS}
       onExit={onExit}
       overlay={tvOpen ? <TvOverlay onClose={() => setTvOpen(false)} /> : null}
