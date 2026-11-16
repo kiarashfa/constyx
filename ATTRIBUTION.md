@@ -26,12 +26,20 @@ Scene geometry is original modelling. The Poly Haven maps below are blended into
 |---|---|---|
 | `src/pages/simulations/scenes/white-room/assets/white-room.glb` | [leather_red_02](https://polyhaven.com/a/leather_red_02), [dark_wood](https://polyhaven.com/a/dark_wood) | White Room armchair leather and timber frame |
 | `src/pages/simulations/scenes/armory/assets/armory.glb` | [dark_wood](https://polyhaven.com/a/dark_wood) | Armory weapon stocks, grips and target frame |
+| `src/pages/simulations/scenes/dojo/assets/dojo.glb` | [dark_wood](https://polyhaven.com/a/dark_wood) | Dojo timber frame, floor boards, ceiling and furniture |
+
+## Character base mesh (CC0, MakeHuman)
+
+| File | Source | Used in |
+|---|---|---|
+| `src/pages/simulations/scenes/dojo/assets/opponent.glb` | [MakeHuman](http://www.makehumancommunity.org) base mesh, morph targets and skin weights (hm08, released as CC0) | Dojo sparring partner: head, hands and feet. Clothing, rig reduction and textures are original work. |
 
 ## Visual references (not shipped)
 
 - "The Matrix – Neo's Office" 3D recreation renders by Adrien Isakovic: staging reference for the MetaCortex scene.
 - Film stills from *The Matrix* (1999), © Warner Bros.: prop and staging reference for the White Room (wingback armchairs, console television, wine table).
 - Film stills from *The Matrix* (1999), © Warner Bros.: staging reference for the Armory (steel racks, tiers of leaning long guns).
+- Film stills from *The Matrix* (1999), © Warner Bros.: staging reference for the Dojo (timber hall, paper screens, tatami, alcove, sparring clothes).
 - Film stills from *The Matrix* (1999), © Warner Bros.: staging reference for MetaCortex (window washers) and Adams Street (underpass, 1965 Lincoln Continental). The location is the 1926 Elizabeth Street railway viaduct, Haymarket, Sydney.
 
 ## Shader techniques

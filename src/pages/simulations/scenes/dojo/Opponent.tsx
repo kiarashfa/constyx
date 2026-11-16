@@ -1,7 +1,21 @@
-import { useMemo, useRef, type MutableRefObject, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, type MutableRefObject, type ReactNode } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import type { Group } from 'three';
+import {
+  CanvasTexture,
+  Euler,
+  Quaternion,
+  Vector3,
+  type Bone,
+  type Group,
+  type MeshStandardMaterial,
+  type Object3D,
+  type SkinnedMesh,
+} from 'three';
+import { getGLTF, preloadGLTF } from '../../engine3d/assets';
 import type { AttackKind } from './combat';
+import opponentUrl from './assets/opponent.glb?url';
+
+export const preloadOpponent = () => preloadGLTF(opponentUrl);
 
 export type OpponentMode = 'idle' | 'guard' | 'telegraph' | 'strike' | 'stagger' | 'bow';
 
@@ -16,172 +30,123 @@ export interface OpponentCtl {
   engaged: boolean;
 }
 
-/** Joint channels. Body faces local +z; root yaw turns +z toward the player. */
-type Pose = {
-  rootY: number; // crouch offset
-  adv: number; // forward offset along facing (lunges / recoils)
-  torsoX: number;
-  torsoZ: number;
-  headX: number;
-  shLX: number;
-  shLZ: number;
-  shRX: number;
-  shRZ: number;
-  elL: number;
-  elR: number;
-  hipLX: number;
-  hipLZ: number;
-  hipRX: number;
-  hipRZ: number;
-  kneeL: number;
-  kneeR: number;
+type V3 = [number, number, number];
+
+/**
+ * A pose is a handful of limb directions in the body frame (x: his left,
+ * y: up, z: the way he faces) plus the torso lean. Arms ride on the leaning
+ * chest; legs hang from the hips. No joint angles to keep consistent.
+ */
+interface Pose {
+  /** Forward lean of the torso (radians), side lean, twist, head nod. */
+  lean: number;
+  side: number;
+  twist: number;
+  head: number;
+  /** Step along the facing direction (lunges / recoils), metres. */
+  adv: number;
+  armL: V3;
+  foreL: V3;
+  armR: V3;
+  foreR: V3;
+  legL: V3;
+  shinL: V3;
+  legR: V3;
+  shinR: V3;
+}
+
+const STAND = {
+  legL: [0.09, -1, 0.02] as V3,
+  shinL: [0.03, -1, -0.04] as V3,
+  legR: [-0.09, -1, 0.02] as V3,
+  shinR: [-0.03, -1, -0.04] as V3,
 };
 
-const BASE: Pose = {
-  rootY: 0,
-  adv: 0,
-  torsoX: 0.02,
-  torsoZ: 0,
-  headX: 0,
-  shLX: 0.15,
-  shLZ: 0.12,
-  shRX: 0.15,
-  shRZ: -0.12,
-  elL: -0.25,
-  elR: -0.25,
-  hipLX: 0,
-  hipLZ: 0.04,
-  hipRX: 0,
-  hipRZ: -0.04,
-  kneeL: 0.08,
-  kneeR: 0.08,
-};
-
-/** Silhouette-first poses: crouched-low vs arms-high vs leaning-back-cocked
- * must be tellable apart in a tenth of a second. */
 const POSES: Record<string, Pose> = {
-  idle: { ...BASE },
+  idle: {
+    lean: 0.03, side: 0, twist: 0, head: 0, adv: 0,
+    armL: [0.2, -1, 0.02], foreL: [0.1, -1, 0.3],
+    armR: [-0.2, -1, 0.02], foreR: [-0.1, -1, 0.3],
+    ...STAND,
+  },
+  // Open-hand guard, left side leading.
   guard: {
-    ...BASE,
-    rootY: -0.08,
-    torsoX: 0.08,
-    shLX: 0.85,
-    shRX: 0.85,
-    shLZ: 0.2,
-    shRZ: -0.2,
-    elL: -1.9,
-    elR: -1.9,
-    kneeL: 0.2,
-    kneeR: 0.2,
+    lean: 0.1, side: 0, twist: -0.35, head: 0.05, adv: 0,
+    armL: [0.3, -0.6, 0.75], foreL: [-0.25, 0.55, 0.8],
+    armR: [-0.4, -0.85, 0.2], foreR: [0.35, 0.3, 0.9],
+    legL: [0.2, -0.9, 0.4], shinL: [0, -1, -0.15],
+    legR: [-0.24, -0.9, -0.25], shinR: [0, -1, -0.25],
   },
-  bow: { ...BASE, torsoX: 0.75, headX: 0.3, shLX: 0.05, shRX: 0.05, elL: -0.1, elR: -0.1 },
+  bow: {
+    lean: 0.8, side: 0, twist: 0, head: 0.25, adv: 0,
+    armL: [0.16, -1, 0.0], foreL: [0.1, -1, 0.12],
+    armR: [-0.16, -1, 0.0], foreR: [-0.1, -1, 0.12],
+    ...STAND,
+  },
   stagger: {
-    ...BASE,
-    torsoX: -0.55,
-    headX: -0.4,
-    adv: -0.7,
-    shLX: 1.1,
-    shLZ: 0.9,
-    shRX: 1.1,
-    shRZ: -0.9,
-    elL: -0.3,
-    elR: -0.3,
-    rootY: -0.06,
-    kneeL: 0.35,
-    kneeR: 0.35,
+    lean: -0.45, side: 0.12, twist: 0.2, head: -0.3, adv: -0.7,
+    armL: [0.85, 0.15, 0.3], foreL: [0.6, 0.6, 0.35],
+    armR: [-0.85, 0.0, 0.2], foreR: [-0.7, 0.5, 0.4],
+    legL: [0.16, -0.95, 0.3], shinL: [0, -1, -0.35],
+    legR: [-0.2, -0.9, -0.3], shinR: [0, -1, -0.1],
   },
-  // LOW SWEEP — deep crouch, right leg coiled, then the leg whips through.
+  // LOW SWEEP: sinks into a deep crouch with the right leg coiled, then the
+  // leg whips through at shin height.
   sweepTele: {
-    ...BASE,
-    rootY: -0.44,
-    torsoX: 0.5,
-    headX: -0.25,
-    shLX: 0.55,
-    shRX: 0.7,
-    elL: -0.7,
-    elR: -0.5,
-    hipLX: -0.3,
-    kneeL: 1.5,
-    hipRX: -0.85,
-    kneeR: 1.7,
+    lean: 0.45, side: 0, twist: 0.3, head: -0.25, adv: 0,
+    armL: [0.5, -0.5, 0.6], foreL: [-0.3, 0.2, 0.9],
+    armR: [-0.6, -0.7, -0.2], foreR: [-0.2, -0.6, 0.6],
+    legL: [0.35, -0.45, 0.75], shinL: [0, -0.8, -0.6],
+    legR: [-0.4, -0.6, -0.3], shinR: [0, -0.55, -0.8],
   },
   sweepStrike: {
-    ...BASE,
-    rootY: -0.5,
-    torsoX: 0.3,
-    torsoZ: 0.45,
-    shLX: 0.8,
-    shRX: 0.2,
-    elL: -0.5,
-    hipLX: -0.2,
-    kneeL: 1.4,
-    hipRX: 1.25,
-    hipRZ: 0.35,
-    kneeR: 0.15,
+    lean: 0.3, side: 0.3, twist: -0.5, head: -0.2, adv: 0.25,
+    armL: [0.75, -0.3, 0.2], foreL: [0.4, 0.3, 0.6],
+    armR: [-0.8, -0.3, -0.2], foreR: [-0.7, -0.2, 0.3],
+    legL: [0.4, -0.25, 0.7], shinL: [0, -0.75, -0.65],
+    legR: [-0.5, -0.5, 0.75], shinR: [0.25, -0.5, 0.85],
   },
-  // HEAVY PALM — both arms rise high overhead, unmistakable.
+  // HEAVY PALM: both arms rise high overhead, then drive straight out.
   heavyTele: {
-    ...BASE,
-    torsoX: -0.18,
-    headX: -0.3,
-    rootY: 0.03,
-    shLX: 2.7,
-    shRX: 2.7,
-    shLZ: 0.25,
-    shRZ: -0.25,
-    elL: -0.45,
-    elR: -0.45,
+    lean: -0.16, side: 0, twist: 0, head: -0.25, adv: 0,
+    armL: [0.28, 0.9, 0.12], foreL: [0.02, 0.95, 0.3],
+    armR: [-0.28, 0.9, 0.12], foreR: [-0.02, 0.95, 0.3],
+    legL: [0.14, -1, 0.1], shinL: [0, -1, -0.12],
+    legR: [-0.14, -1, 0.1], shinR: [0, -1, -0.12],
   },
   heavyStrike: {
-    ...BASE,
-    torsoX: 0.55,
-    headX: 0.15,
-    rootY: -0.22,
-    adv: 0.35,
-    shLX: 0.75,
-    shRX: 0.75,
-    elL: -0.15,
-    elR: -0.15,
-    kneeL: 0.5,
-    kneeR: 0.5,
+    lean: 0.5, side: 0, twist: 0, head: -0.3, adv: 0.35,
+    armL: [0.12, 0.3, 1], foreL: [-0.04, 0.4, 1],
+    armR: [-0.12, 0.3, 1], foreR: [0.04, 0.4, 1],
+    legL: [0.16, -0.8, 0.55], shinL: [0, -1, -0.1],
+    legR: [-0.2, -0.9, -0.35], shinR: [0, -1, -0.3],
   },
-  // OVERCOMMITTED LUNGE — long lean back with the fist chambered, then a
-  // deep, slow overreach: the opening you punish.
+  // OVERCOMMITTED LUNGE: leans away with the right hand chambered at the hip,
+  // then a long, deep overreach: the opening you punish.
   lungeTele: {
-    ...BASE,
-    torsoX: -0.35,
-    headX: -0.15,
-    rootY: -0.12,
-    adv: -0.45,
-    shRX: 0.5,
-    elR: -2.3,
-    shLX: 0.75,
-    elL: -1.0,
-    hipLX: 0.25,
-    kneeL: 0.35,
+    lean: -0.3, side: 0, twist: 0.5, head: 0.1, adv: -0.45,
+    armL: [0.3, -0.4, 0.85], foreL: [-0.2, 0.5, 0.8],
+    armR: [-0.3, -0.75, -0.6], foreR: [-0.05, 0.1, 1],
+    legL: [0.16, -0.9, 0.35], shinL: [0, -1, -0.05],
+    legR: [-0.2, -0.85, -0.3], shinR: [0, -1, -0.35],
   },
   lungeStrike: {
-    ...BASE,
-    torsoX: 0.5,
-    headX: 0.2,
-    rootY: -0.28,
-    adv: 1.0,
-    shRX: 1.55,
-    shRZ: -0.05,
-    elR: -0.1,
-    shLX: -0.35,
-    elL: -0.5,
-    hipLX: 0.7,
-    kneeL: 0.9,
-    hipRX: -0.45,
-    kneeR: 0.15,
+    lean: 0.5, side: 0, twist: -0.55, head: -0.3, adv: 1.0,
+    armL: [0.45, -0.7, -0.5], foreL: [0.3, -0.5, -0.2],
+    armR: [-0.1, 0.25, 1], foreR: [-0.02, 0.3, 1],
+    legL: [0.15, -0.45, 0.9], shinL: [0, -1, 0.05],
+    legR: [-0.15, -0.75, -0.75], shinR: [0, -0.8, -0.6],
   },
 };
 
-const SKIN = '#7a5240';
-const GI = '#e6e0d2';
-const GI_TRIM = '#c9c2b0';
-const DARK = '#22201c';
+const SCALARS = ['lean', 'side', 'twist', 'head', 'adv'] as const;
+const VECTORS = ['armL', 'foreL', 'armR', 'foreR', 'legL', 'shinL', 'legR', 'shinR'] as const;
+
+function clonePose(p: Pose): Pose {
+  const out = { ...p };
+  for (const key of VECTORS) out[key] = [...p[key]] as V3;
+  return out;
+}
 
 const ENGAGE_DIST: Partial<Record<OpponentMode, number>> = {
   strike: 1.85,
@@ -190,86 +155,132 @@ const ENGAGE_DIST: Partial<Record<OpponentMode, number>> = {
 };
 const DEFAULT_DIST = 2.25;
 const HOME: [number, number, number] = [0, 0, -1.6];
+/** Ankle height when the sole is flat on the mat. */
+const ANKLE = 0.076;
+
+interface Rig {
+  root: Object3D;
+  bones: Record<string, Bone>;
+  rest: Map<Bone, Quaternion>;
+  /** Rest orientation of the torso bones in model space. */
+  restWorld: Map<Bone, Quaternion>;
+}
+
+function prepareRig(): Rig | null {
+  const gltf = getGLTF(opponentUrl);
+  if (!gltf) return null;
+  const root = gltf.scene;
+  const bones: Record<string, Bone> = {};
+  const rest = new Map<Bone, Quaternion>();
+  const restWorld = new Map<Bone, Quaternion>();
+  root.updateMatrixWorld(true);
+  const inverseRoot = root.getWorldQuaternion(new Quaternion()).invert();
+  root.traverse((node) => {
+    const bone = node as Bone;
+    if (bone.isBone) {
+      bones[bone.name] = bone;
+      if (!bone.userData.rest) bone.userData.rest = bone.quaternion.clone();
+      bone.quaternion.copy(bone.userData.rest as Quaternion);
+    }
+    const mesh = node as SkinnedMesh;
+    if (mesh.isSkinnedMesh) {
+      mesh.frustumCulled = false;
+      (mesh.material as MeshStandardMaterial).envMapIntensity = 1.0;
+    }
+  });
+  root.updateMatrixWorld(true);
+  for (const bone of Object.values(bones)) {
+    rest.set(bone, (bone.userData.rest as Quaternion).clone());
+    restWorld.set(bone, inverseRoot.clone().multiply(bone.getWorldQuaternion(new Quaternion())));
+  }
+  if (!bones.Hips || !bones.Chest || !bones.UpperArmL || !bones.ThighL) return null;
+  return { root, bones, rest, restWorld };
+}
+
+/** Soft blob that grounds him on the mat. */
+function makeShadowTexture(): CanvasTexture {
+  const size = 128;
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = size;
+  const ctx = canvas.getContext('2d')!;
+  const g = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+  g.addColorStop(0, 'rgba(0,0,0,0.62)');
+  g.addColorStop(0.45, 'rgba(0,0,0,0.34)');
+  g.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, size, size);
+  return new CanvasTexture(canvas);
+}
 
 interface OpponentProps {
   ctl: MutableRefObject<OpponentCtl>;
-  /** Rendered inside the moving root — e.g. a dynamic Interactable anchor. */
+  /** Rendered inside the moving root, e.g. a dynamic Interactable anchor. */
   children?: ReactNode;
 }
 
+const UP = new Vector3(0, 1, 0);
+const qA = new Quaternion();
+const qB = new Quaternion();
+const qC = new Quaternion();
+const qTorso = new Quaternion();
+const qYaw = new Quaternion();
+const vA = new Vector3();
+const vB = new Vector3();
+const euler = new Euler();
+
 /**
- * The sparring partner: ~22 primitive meshes articulated through group
- * pivots, posed by exponential lerp toward the active pose each frame, with
- * footwork that keeps sparring distance from the live player position.
- * No skeletons, no clips — the whole animator is this file.
+ * The sparring partner: a skinned figure posed procedurally. Each frame the
+ * active pose (limb directions) is eased in, bones are aimed along those
+ * directions, and the whole figure is dropped so the lower foot stays on the
+ * mat. Footwork keeps sparring distance from the live player position.
  */
 export function Opponent({ ctl, children }: OpponentProps) {
   const camera = useThree((state) => state.camera);
   const root = useRef<Group>(null);
-  const torso = useRef<Group>(null);
-  const head = useRef<Group>(null);
-  const shL = useRef<Group>(null);
-  const shR = useRef<Group>(null);
-  const elL = useRef<Group>(null);
-  const elR = useRef<Group>(null);
-  const hipL = useRef<Group>(null);
-  const hipR = useRef<Group>(null);
-  const kneeL = useRef<Group>(null);
-  const kneeR = useRef<Group>(null);
+  const lift = useRef<Group>(null);
+  const rig = useMemo(prepareRig, []);
+  const shadow = useMemo(makeShadowTexture, []);
+  const cur = useMemo<Pose>(() => clonePose(POSES.idle), []);
+  const forced = useRef<string | null>(null);
+  const turned = useRef(0);
 
-  const cur = useMemo<Pose>(() => ({ ...BASE }), []);
+  useEffect(() => () => shadow.dispose(), [shadow]);
+
+  // Dev handle: hold a named pose for inspection.
+  useEffect(() => {
+    if (import.meta.env.DEV) {
+      (window as unknown as Record<string, unknown>).__opponentDebug = {
+        pose: (name: string | null) => void (forced.current = name),
+        turn: (offset: number) => void (turned.current = offset),
+        poses: Object.keys(POSES),
+        root,
+      };
+    }
+  }, []);
 
   useFrame(({ clock }, rawDt) => {
     const dt = Math.min(rawDt, 0.05);
     const c = ctl.current;
     const t = clock.elapsedTime;
+    const g = root.current;
+    if (!g) return;
 
-    // ---- pick target pose ----
+    // ---- pick and ease toward the target pose ----
     let target: Pose;
-    switch (c.mode) {
-      case 'telegraph':
-        target = POSES[`${c.kind}Tele`];
-        break;
-      case 'strike':
-        target = POSES[`${c.kind}Strike`];
-        break;
-      case 'guard':
-      case 'stagger':
-      case 'bow':
-        target = POSES[c.mode];
-        break;
-      default:
-        target = POSES.idle;
-    }
+    if (forced.current && POSES[forced.current]) target = POSES[forced.current];
+    else if (c.mode === 'telegraph') target = POSES[`${c.kind}Tele`];
+    else if (c.mode === 'strike') target = POSES[`${c.kind}Strike`];
+    else target = POSES[c.mode] ?? POSES.idle;
 
     // Strikes snap; telegraphs settle quickly; everything else eases.
     const rate = c.mode === 'strike' ? 16 : c.mode === 'telegraph' ? 8 : 5;
     const f = 1 - Math.exp(-rate * dt);
-    for (const key of Object.keys(cur) as (keyof Pose)[]) {
-      cur[key] += (target[key] - cur[key]) * f;
+    for (const key of SCALARS) cur[key] += (target[key] - cur[key]) * f;
+    for (const key of VECTORS) {
+      for (let i = 0; i < 3; i++) cur[key][i] += (target[key][i] - cur[key][i]) * f;
     }
-
-    // Breathing / telegraph pulse so held poses stay alive.
-    const breathe = c.mode === 'telegraph' ? Math.sin(t * 9) * 0.025 : Math.sin(t * 1.7) * 0.012;
-
-    // ---- apply channels ----
-    if (torso.current) {
-      torso.current.rotation.x = cur.torsoX + breathe;
-      torso.current.rotation.z = cur.torsoZ;
-    }
-    if (head.current) head.current.rotation.x = cur.headX;
-    if (shL.current) shL.current.rotation.set(cur.shLX, 0, cur.shLZ + breathe * 0.6);
-    if (shR.current) shR.current.rotation.set(cur.shRX, 0, cur.shRZ - breathe * 0.6);
-    if (elL.current) elL.current.rotation.x = cur.elL;
-    if (elR.current) elR.current.rotation.x = cur.elR;
-    if (hipL.current) hipL.current.rotation.set(cur.hipLX, 0, cur.hipLZ);
-    if (hipR.current) hipR.current.rotation.set(cur.hipRX, 0, cur.hipRZ);
-    if (kneeL.current) kneeL.current.rotation.x = cur.kneeL;
-    if (kneeR.current) kneeR.current.rotation.x = cur.kneeR;
 
     // ---- footwork: hold sparring distance from the live player ----
-    const g = root.current;
-    if (!g) return;
     const px = camera.position.x;
     const pz = camera.position.z;
     let targetX: number;
@@ -282,8 +293,7 @@ export function Opponent({ ctl, children }: OpponentProps) {
       targetX = px + (dx / len) * dist;
       targetZ = pz + (dz / len) * dist;
     } else {
-      // Unengaged: pace slowly around the center — a live target, which is
-      // exactly what the dynamic Interactable focus exists to track.
+      // Unengaged: drift slowly around the centre of the mat.
       targetX = HOME[0] + Math.sin(t * 0.35) * 1.4;
       targetZ = HOME[2] + Math.cos(t * 0.22) * 0.7;
     }
@@ -292,116 +302,80 @@ export function Opponent({ ctl, children }: OpponentProps) {
     g.position.x += (targetX - g.position.x) * mf;
     g.position.z += (targetZ - g.position.z) * mf;
 
-    // Face the player (always — he never turns his back), advance along gaze.
-    const yaw = Math.atan2(px - g.position.x, pz - g.position.z);
+    // Face the player (he never turns his back), advance along the gaze.
+    const yaw = Math.atan2(px - g.position.x, pz - g.position.z) + turned.current;
     let dYaw = yaw - g.rotation.y;
     while (dYaw > Math.PI) dYaw -= Math.PI * 2;
     while (dYaw < -Math.PI) dYaw += Math.PI * 2;
     g.rotation.y += dYaw * Math.min(1, 6 * dt);
-
     g.position.x += Math.sin(g.rotation.y) * cur.adv * mf * 2;
     g.position.z += Math.cos(g.rotation.y) * cur.adv * mf * 2;
-    g.position.y = cur.rootY;
+
+    if (!rig || !lift.current) return;
+    const { bones, rest, restWorld } = rig;
+
+    // ---- pose the skeleton ----
+    for (const [bone, q] of rest) bone.quaternion.copy(q);
+    // Breathing / telegraph tremor so held poses stay alive.
+    const breathe = c.mode === 'telegraph' ? Math.sin(t * 9) * 0.02 : Math.sin(t * 1.7) * 0.012;
+    const lean = cur.lean + breathe;
+
+    // Torso: half of the lean in the lower spine, half in the chest.
+    const bend = (bone: Bone, x: number, y: number, z: number) => {
+      const world = restWorld.get(bone)!;
+      qA.setFromEuler(euler.set(x, y, z, 'YXZ'));
+      qB.copy(world).invert().multiply(qA).multiply(world);
+      bone.quaternion.multiply(qB);
+    };
+    bend(bones.Spine, lean * 0.5, cur.twist * 0.5, cur.side * 0.5);
+    bend(bones.Chest, lean * 0.5, cur.twist * 0.5, cur.side * 0.5);
+    bend(bones.Head, cur.head, -cur.twist * 0.8, 0);
+
+    g.updateWorldMatrix(true, false);
+    qYaw.setFromEuler(euler.set(0, g.rotation.y, 0, 'YXZ'));
+    qA.setFromEuler(euler.set(lean * 0.5, cur.twist * 0.5, cur.side * 0.5, 'YXZ'));
+    qTorso.copy(qYaw).multiply(qA).multiply(qA);
+
+    // Aim a bone's length along a direction given in `frame`.
+    const aim = (bone: Bone, dir: V3 | Vector3, frame: Quaternion) => {
+      const parent = bone.parent!;
+      parent.updateWorldMatrix(true, false);
+      parent.getWorldQuaternion(qA);
+      if (Array.isArray(dir)) vA.set(dir[0], dir[1], dir[2]);
+      else vA.copy(dir);
+      vA.normalize().applyQuaternion(frame);
+      vB.copy(UP).applyQuaternion(qB.copy(qA).multiply(bone.quaternion));
+      qC.setFromUnitVectors(vB, vA);
+      // local = parent^-1 * arc * parent * local
+      bone.quaternion.premultiply(qB.copy(qA)).premultiply(qC).premultiply(qA.invert());
+    };
+    aim(bones.UpperArmL, cur.armL, qTorso);
+    aim(bones.ForeArmL, cur.foreL, qTorso);
+    aim(bones.UpperArmR, cur.armR, qTorso);
+    aim(bones.ForeArmR, cur.foreR, qTorso);
+    aim(bones.ThighL, cur.legL, qYaw);
+    aim(bones.ShinL, cur.shinL, qYaw);
+    aim(bones.ThighR, cur.legR, qYaw);
+    aim(bones.ShinR, cur.shinR, qYaw);
+    // Feet stay flat, toes turned out a touch.
+    aim(bones.FootL, vB.set(0.12, -0.3, 0.95), qYaw);
+    aim(bones.FootR, vB.set(-0.12, -0.3, 0.95), qYaw);
+
+    // ---- keep the lower foot on the mat ----
+    lift.current.updateWorldMatrix(true, true);
+    const yL = bones.FootL.getWorldPosition(vA).y;
+    const yR = bones.FootR.getWorldPosition(vB).y;
+    lift.current.position.y -= Math.min(yL, yR) - ANKLE;
   });
 
   return (
     <group ref={root} position={HOME}>
       {children}
-      {/* pelvis + legs hang off the root so the torso can lean independently */}
-      <mesh position={[0, 0.94, 0]}>
-        <boxGeometry args={[0.32, 0.2, 0.22]} />
-        <meshStandardMaterial color={GI} roughness={0.75} />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.012, 0]} renderOrder={1}>
+        <planeGeometry args={[1.5, 1.5]} />
+        <meshBasicMaterial map={shadow} transparent depthWrite={false} toneMapped={false} />
       </mesh>
-
-      {([-1, 1] as const).map((side) => {
-        const hip = side < 0 ? hipL : hipR;
-        const knee = side < 0 ? kneeL : kneeR;
-        return (
-          <group key={side} ref={hip} position={[side * 0.11, 0.9, 0]}>
-            <mesh position={[0, -0.2, 0]}>
-              <capsuleGeometry args={[0.072, 0.3, 4, 10]} />
-              <meshStandardMaterial color={GI} roughness={0.75} />
-            </mesh>
-            <group ref={knee} position={[0, -0.44, 0]}>
-              <mesh position={[0, -0.18, 0]}>
-                <capsuleGeometry args={[0.055, 0.28, 4, 10]} />
-                <meshStandardMaterial color={GI_TRIM} roughness={0.75} />
-              </mesh>
-              <mesh position={[0, -0.36, 0.06]}>
-                <boxGeometry args={[0.09, 0.05, 0.21]} />
-                <meshStandardMaterial color={DARK} roughness={0.8} />
-              </mesh>
-            </group>
-          </group>
-        );
-      })}
-
-      <group ref={torso} position={[0, 1.04, 0]}>
-        <mesh position={[0, 0.28, 0]}>
-          <capsuleGeometry args={[0.17, 0.3, 4, 12]} />
-          <meshStandardMaterial color={GI} roughness={0.75} />
-        </mesh>
-        {/* Gi lapel V */}
-        <mesh position={[-0.05, 0.3, 0.145]} rotation={[0, 0, 0.5]}>
-          <boxGeometry args={[0.05, 0.34, 0.02]} />
-          <meshStandardMaterial color={GI_TRIM} roughness={0.7} />
-        </mesh>
-        <mesh position={[0.05, 0.3, 0.145]} rotation={[0, 0, -0.5]}>
-          <boxGeometry args={[0.05, 0.34, 0.02]} />
-          <meshStandardMaterial color={GI_TRIM} roughness={0.7} />
-        </mesh>
-        {/* Belt */}
-        <mesh position={[0, 0.03, 0]}>
-          <boxGeometry args={[0.37, 0.07, 0.27]} />
-          <meshStandardMaterial color={DARK} roughness={0.6} />
-        </mesh>
-
-        {/* Head: bald, calm, pince-nez glasses */}
-        <group ref={head} position={[0, 0.6, 0]}>
-          <mesh position={[0, 0.06, 0]}>
-            <sphereGeometry args={[0.115, 20, 16]} />
-            <meshStandardMaterial color={SKIN} roughness={0.55} />
-          </mesh>
-          <mesh position={[0, 0.02, 0.02]}>
-            <cylinderGeometry args={[0.045, 0.06, 0.08, 10]} />
-            <meshStandardMaterial color={SKIN} roughness={0.55} />
-          </mesh>
-          {([-1, 1] as const).map((s) => (
-            <mesh key={s} position={[s * 0.048, 0.075, 0.104]} rotation={[0.1, 0, 0]}>
-              <cylinderGeometry args={[0.034, 0.034, 0.012, 16]} />
-              <meshStandardMaterial color="#0c0c0e" roughness={0.25} metalness={0.4} />
-            </mesh>
-          ))}
-          <mesh position={[0, 0.082, 0.112]}>
-            <boxGeometry args={[0.032, 0.008, 0.008]} />
-            <meshStandardMaterial color="#3a3630" metalness={0.6} roughness={0.35} />
-          </mesh>
-        </group>
-
-        {/* Arms hang from the torso so they follow leans */}
-        {([-1, 1] as const).map((side) => {
-          const sh = side < 0 ? shL : shR;
-          const el = side < 0 ? elL : elR;
-          return (
-            <group key={side} ref={sh} position={[side * 0.245, 0.46, 0]}>
-              <mesh position={[0, -0.15, 0]}>
-                <capsuleGeometry args={[0.052, 0.22, 4, 10]} />
-                <meshStandardMaterial color={GI} roughness={0.75} />
-              </mesh>
-              <group ref={el} position={[0, -0.3, 0]}>
-                <mesh position={[0, -0.13, 0]}>
-                  <capsuleGeometry args={[0.045, 0.2, 4, 10]} />
-                  <meshStandardMaterial color={GI_TRIM} roughness={0.75} />
-                </mesh>
-                <mesh position={[0, -0.28, 0]}>
-                  <sphereGeometry args={[0.05, 10, 8]} />
-                  <meshStandardMaterial color={SKIN} roughness={0.55} />
-                </mesh>
-              </group>
-            </group>
-          );
-        })}
-      </group>
+      <group ref={lift}>{rig && <primitive object={rig.root} />}</group>
     </group>
   );
 }
