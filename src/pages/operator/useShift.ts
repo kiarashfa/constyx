@@ -88,7 +88,7 @@ function freshSim(): Sim {
 /**
  * The whole Operator shift: clock, pacing, spawning, targeting, scoring,
  * trace meter, logging, and career persistence. All rain visuals go through
- * the round-1 engine event API (column-effect / highlight / glitch-flash).
+ * the rain engine event API (column-effect / highlight / glitch-flash).
  */
 export function useShift(getEngine: () => RainEngine | null) {
   const [phase, setPhase] = useState<ShiftPhase>('idle');

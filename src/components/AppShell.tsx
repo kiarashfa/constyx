@@ -11,7 +11,7 @@ import { SiteFooter } from './SiteFooter';
  * overlay, terminal nav, and the attribution footer.
  *
  * The CRT overlay (scanlines + vignette) is deliberately DROPPED on the
- * immersive Locations/Focus scene routes (`/locations/:id`, `/focus/:id`):
+ * immersive Simulations/Sanctuary scene routes (`/simulations/:id`, `/sanctuary/:id`):
  * those aim for accurate rendered visuals and the old-monitor treatment fights
  * them. It stays on Operator, Construct, the hubs, and every terminal page,
  * where the CRT look is the point.
@@ -22,7 +22,7 @@ import { SiteFooter } from './SiteFooter';
 export function AppShell() {
   const { pathname } = useLocation();
   const isLanding = pathname === '/';
-  const isImmersiveScene = /^\/(locations|focus)\/[^/]+/.test(pathname);
+  const isImmersiveScene = /^\/(simulations|sanctuary)\/[^/]+/.test(pathname);
 
   useLayoutEffect(() => {
     document.title = getRouteMeta(pathname).title;

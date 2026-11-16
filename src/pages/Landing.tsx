@@ -1,14 +1,14 @@
 import { Link } from 'react-router-dom';
 import { SITE } from '../site/config';
 import { SECTIONS } from '../site/routes';
-import { SCENES } from './locations/scenes';
-import { FOCUS_SCENES } from './focus/scenes';
+import { SIMULATION_SCENES } from './simulations/scenes';
+import { SANCTUARY_SCENES } from './sanctuary/scenes';
 
 /** `label ....... value`, dot-leadered so the values line up in one column. */
 const readout = (label: string, value: string) =>
   `${label} ${'.'.repeat(Math.max(2, 23 - label.length))} ${value}`;
 
-const sceneCount = [...SCENES, ...FOCUS_SCENES].filter((scene) => scene.status === 'online').length;
+const sceneCount = [...SIMULATION_SCENES, ...SANCTUARY_SCENES].length;
 
 const BOOT_LINES = [
   `NEBUCHADNEZZAR :: OPERATOR CONSOLE v${__APP_VERSION__}`,

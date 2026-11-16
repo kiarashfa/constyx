@@ -24,11 +24,11 @@
   <text class="live" x="380" y="206" text-anchor="middle">● LIVE · you are here</text>
 
   <rect class="box" x="520" y="160" width="220" height="62" />
-  <text class="name" x="630" y="186" text-anchor="middle">[03] LOCATIONS</text>
+  <text class="name" x="630" y="186" text-anchor="middle">[03] SIMULATIONS</text>
   <text class="live" x="630" y="206" text-anchor="middle">● LIVE · 3D scenes</text>
 
   <rect class="box" x="20" y="250" width="220" height="62" />
-  <text class="name" x="130" y="276" text-anchor="middle">[04] FOCUS</text>
+  <text class="name" x="130" y="276" text-anchor="middle">[04] SANCTUARY</text>
   <text class="live" x="130" y="296" text-anchor="middle">● LIVE · ambient scenes</text>
 
   <rect class="box" x="270" y="250" width="220" height="62" />

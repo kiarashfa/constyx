@@ -25,7 +25,7 @@ export interface CodeVisionMaterial {
 
 /**
  * Build the shared code-vision post material + its glyph atlas. Every consumer
- * (webcam section, Focus overlay, Locations overlay) uses this exact material;
+ * (webcam section, Sanctuary overlay) uses this exact material;
  * they only differ in what they feed `uSource` and how they set the
  * cover/mirror transform (`uSrcMul`/`uSrcAdd`).
  *

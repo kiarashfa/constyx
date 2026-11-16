@@ -11,7 +11,7 @@ interface CodeVisionPassProps {
 }
 
 /**
- * The shared "code vision" overlay pass — mounted by the Focus shell
+ * The shared "code vision" overlay pass — mounted by the Sanctuary shell
  * (`ShaderSceneShell`) for every raymarched shader scene. It takes over the
  * render loop (priority 1) and works for any scene with zero per-scene code,
  * because it operates on whatever the scene rendered:
@@ -22,7 +22,7 @@ interface CodeVisionPassProps {
  *     code-vision material over that captured frame to the screen.
  *
  * The FBO texture is sRGB so that any material whose output the renderer
- * colour-encodes captures exactly as it'd appear on screen; the Focus scenes'
+ * colour-encodes captures exactly as it'd appear on screen; the Sanctuary scenes'
  * raw ShaderMaterials aren't colour-encoded either way, so they're unaffected.
  * `uMix` ramps 0↔1 for a smooth cross-fade. The scene shader, its uniforms,
  * audio and interaction are all untouched.

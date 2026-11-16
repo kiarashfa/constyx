@@ -1,6 +1,6 @@
 import { SITE } from './config';
-import { SCENES } from '../pages/locations/scenes';
-import { FOCUS_SCENES } from '../pages/focus/scenes';
+import { SIMULATION_SCENES } from '../pages/simulations/scenes';
+import { SANCTUARY_SCENES } from '../pages/sanctuary/scenes';
 import { LESSONS } from '../pages/construct/lessons';
 
 /**
@@ -39,20 +39,20 @@ export const SECTIONS: Section[] = [
       'A white-void training library. Download real, sourced programs on kung fu, jiu-jitsu, deep work, and habit building.',
   },
   {
-    path: '/locations',
+    path: '/simulations',
     code: '03',
-    label: 'LOCATIONS',
+    label: 'SIMULATIONS',
     tagline: 'simulation decks',
-    title: 'Locations',
+    title: 'Simulations',
     description:
-      'Explorable first-person 3D scenes: the white room, the jump program, the dojo, the armory, bullet time, and the woman in the red dress.',
+      'Explorable 3D simulations: the white room, the jump program, the dojo, the armory, bullet time, and the woman in the red dress.',
   },
   {
-    path: '/focus',
+    path: '/sanctuary',
     code: '04',
-    label: 'FOCUS',
+    label: 'SANCTUARY',
     tagline: 'deep-work sessions',
-    title: 'Focus Mode',
+    title: 'Sanctuary',
     description:
       'Ambient raymarched scenes to leave open while you work: Mobil Ave, the pod fields, the Oracle’s park, Seraph’s tea house, and more. No timers, no objectives.',
   },
@@ -86,14 +86,14 @@ export const SECTIONS: Section[] = [
 ];
 
 export interface RouteMeta {
-  /** Router path, no base (e.g. `/focus/pod-bay`). */
+  /** Router path, no base (e.g. `/sanctuary/pod-bay`). */
   path: string;
   /** Full document title. */
   title: string;
   description: string;
 }
 
-/** `ConStyx · Focus Mode – Pod Bay`: site, then section, then page (en dash). */
+/** `ConStyx · Sanctuary – Pod Bay`: site, then section, then page (en dash). */
 const pageTitle = (section: string, page?: string) =>
   `${SITE.name} · ${section}${page ? ` – ${page}` : ''}`;
 
@@ -115,20 +115,20 @@ export function allRoutes(): RouteMeta[] {
         });
       }
     }
-    if (section.path === '/locations') {
-      for (const scene of SCENES.filter((s) => s.status === 'online')) {
+    if (section.path === '/simulations') {
+      for (const scene of SIMULATION_SCENES) {
         routes.push({
-          path: `/locations/${scene.id}`,
-          title: pageTitle('Locations', titleCase(scene.title)),
+          path: `/simulations/${scene.id}`,
+          title: pageTitle('Simulations', titleCase(scene.title)),
           description: sentence(scene.blurb),
         });
       }
     }
-    if (section.path === '/focus') {
-      for (const scene of FOCUS_SCENES.filter((s) => s.status === 'online')) {
+    if (section.path === '/sanctuary') {
+      for (const scene of SANCTUARY_SCENES) {
         routes.push({
-          path: `/focus/${scene.id}`,
-          title: pageTitle('Focus Mode', titleCase(scene.title)),
+          path: `/sanctuary/${scene.id}`,
+          title: pageTitle('Sanctuary', titleCase(scene.title)),
           description: sentence(scene.blurb),
         });
       }

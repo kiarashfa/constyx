@@ -12,12 +12,12 @@ void main() {
 
 /**
  * The shared "seeing the code" fragment shader. ONE shader serves every
- * consumer — the standalone webcam section, the Focus Mode overlay, and the
- * Locations overlay — because the only thing that differs is what feeds
+ * consumer — the standalone webcam section, the Sanctuary overlay, and the
+ * (and any future consumer) — because the only thing that differs is what feeds
  * `uSource` (a camera VideoTexture, or a scene's captured frame) plus the
  * `uSrcMul`/`uSrcAdd` cover/mirror transform.
  *
- * LEGIBILITY IS THE PRIMARY GOAL (round-14 clarity pass). The effect must
+ * LEGIBILITY IS THE PRIMARY GOAL. The effect must
  * read as *the actual scene, rendered in code* — you should be able to tell
  * "that's a teapot on a table" through it, not just "green texture". The
  * living-code motion serves that, it does not compete with it. To keep the
@@ -93,7 +93,7 @@ vec3 codeVision(vec2 fragCoord) {
   // Box-average the whole cell footprint (4x4 taps spanning the cell) so
   // features thinner than a cell — e.g. the tea-house window muntins — are
   // captured CONSISTENTLY instead of aliasing in and out with sub-cell
-  // alignment as the camera moves. A single centre tap (round-15) only saw a
+  // alignment as the camera moves. A single centre tap only saw a
   // thin muntin when it happened to fall under the cell centre, so grid lines
   // flickered and whole segments dropped out; the box filter darkens every
   // cell a muntin passes through, stably, and anti-aliases the source too.

@@ -3,8 +3,8 @@ import { RainEngine } from './RainEngine';
 import type { RainConfig, RainEvent } from './types';
 
 /**
- * Imperative surface exposed via `ref` — how future features (game logic,
- * focus-mode ambience) talk to a mounted rain instance without re-rendering.
+ * Imperative surface exposed via `ref` — how game logic and scene
+ * ambience talk to a mounted rain instance without re-rendering.
  */
 export interface RainHandle {
   dispatch: (event: RainEvent) => void;

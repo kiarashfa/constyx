@@ -59,7 +59,7 @@ export function ScreensaverPage() {
       const { downloadScreensaver, estimateSizeKb } = await import('./exportScreensaver');
       const kb = estimateSizeKb(config);
       downloadScreensaver(config);
-      showToast(`EXPORTED // operator-screensaver.html // ~${kb} KB`);
+      showToast(`EXPORTED // constyx-screensaver.html // ~${kb} KB`);
     } catch {
       showToast('EXPORT FAILED: SEE CONSOLE');
     } finally {

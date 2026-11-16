@@ -7,7 +7,7 @@ import './index.css';
 
 initAnalytics();
 
-// Clean paths (/operator) on GitHub Pages: the deploy workflow copies
+// Clean paths (e.g. /construct) on GitHub Pages: the deploy workflow copies
 // index.html to 404.html, so Pages serves the SPA for any deep link and the
 // router takes over. BASE_URL is '/' in dev and '/<repo>/' in the Pages build
 // (the workflow passes --base), so it doubles as the router basename.

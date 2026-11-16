@@ -12,9 +12,6 @@
   --color-phosphor-bright: #d7ffe0;
   --color-phosphor-dim: #0d8a34;
 
-  /* Cold blue/white — reserved for later "real world" contrast */
-  --color-cold: #a9c7e8;
-
   /* Construct — the white loading-program void (inverse of the terminal) */
   --color-construct: #f2f5f3;
   --color-ink: #10201a;

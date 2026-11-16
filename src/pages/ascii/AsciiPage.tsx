@@ -11,7 +11,7 @@ import { renderAscii, STYLE_OPTIONS, type AsciiStyle } from './render';
  * paste into a terminal, code comment, or channel that still takes ASCII.
  */
 export function AsciiPage() {
-  const [text, setText] = useState('OPERATOR');
+  const [text, setText] = useState('CONSTYX');
   const [style, setStyle] = useState<AsciiStyle>('block');
   const [seed, setSeed] = useState(1);
   const [toast, setToast] = useState<string | null>(null);
@@ -40,8 +40,8 @@ export function AsciiPage() {
 
   const onDownload = () => {
     if (!hasArt) return;
-    downloadTextFile('operator-ascii.txt', output + '\n');
-    flash('SAVED // operator-ascii.txt');
+    downloadTextFile('constyx-ascii.txt', output + '\n');
+    flash('SAVED // constyx-ascii.txt');
   };
 
   return (

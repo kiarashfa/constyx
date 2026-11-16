@@ -138,9 +138,9 @@ export class RainEngine {
   }
 
   /**
-   * Queue an event for the next frame. This is THE hook future features use:
-   * the Operator game will dispatch threat highlights, the focus tool ambience
-   * pulses, etc. Unknown-to-current-code variants simply reach listeners.
+   * Queue an event for the next frame. This is THE hook features use: the
+   * Operator game dispatches threat highlights, scenes dispatch ambience
+   * pulses, etc. Unknown variants simply reach listeners.
    */
   dispatch(event: RainEvent): void {
     this.pendingEvents.push(event);

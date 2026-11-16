@@ -34,9 +34,9 @@ export function buildScreensaverHtml(config: RainConfig): string {
     font: 12px/1.5 'Share Tech Mono', 'Cascadia Mono', Consolas, monospace;
     letter-spacing: 0.3em; color: ${accent}; text-shadow: 0 0 8px ${accent};
     opacity: 0; pointer-events: none; white-space: nowrap;
-    animation: operator-hint 7s ease-out forwards;
+    animation: constyx-hint 7s ease-out forwards;
   }
-  @keyframes operator-hint { 0%, 65% { opacity: 0.55; } 100% { opacity: 0; } }
+  @keyframes constyx-hint { 0%, 65% { opacity: 0.55; } 100% { opacity: 0; } }
   @media (prefers-reduced-motion: reduce) { #hint { animation: none; opacity: 0; } }
 </style>
 </head>
@@ -72,7 +72,7 @@ ${rainEngineScript}
 
 /** Generate and download the standalone screensaver for `config`. */
 export function downloadScreensaver(config: RainConfig): void {
-  downloadTextFile('operator-screensaver.html', buildScreensaverHtml(config), 'text/html;charset=utf-8');
+  downloadTextFile('constyx-screensaver.html', buildScreensaverHtml(config), 'text/html;charset=utf-8');
 }
 
 /** Approximate exported file size in KB, for the UI's export hint. */

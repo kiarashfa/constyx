@@ -4,10 +4,10 @@ import { Landing } from './pages/Landing';
 import { OperatorPage } from './pages/operator/OperatorPage';
 import { ConstructLayout, ConstructPage } from './pages/construct/ConstructPage';
 import { LessonRoute } from './pages/construct/LessonRoute';
-import { LocationsPage } from './pages/locations/LocationsPage';
-import { SceneRoute } from './pages/locations/SceneRoute';
-import { FocusPage } from './pages/focus/FocusPage';
-import { FocusSceneRoute } from './pages/focus/FocusSceneRoute';
+import { SimulationsPage } from './pages/simulations/SimulationsPage';
+import { SimulationSceneRoute } from './pages/simulations/SimulationSceneRoute';
+import { SanctuaryPage } from './pages/sanctuary/SanctuaryPage';
+import { SanctuarySceneRoute } from './pages/sanctuary/SanctuarySceneRoute';
 import { ScreensaverPage } from './pages/screensaver/ScreensaverPage';
 import { AsciiPage } from './pages/ascii/AsciiPage';
 import { CodeVisionPage } from './pages/code-vision/CodeVisionPage';
@@ -24,10 +24,10 @@ export default function App() {
           <Route index element={<ConstructPage />} />
           <Route path=":programId" element={<LessonRoute />} />
         </Route>
-        <Route path="locations" element={<LocationsPage />} />
-        <Route path="locations/:sceneId" element={<SceneRoute />} />
-        <Route path="focus" element={<FocusPage />} />
-        <Route path="focus/:sceneId" element={<FocusSceneRoute />} />
+        <Route path="simulations" element={<SimulationsPage />} />
+        <Route path="simulations/:sceneId" element={<SimulationSceneRoute />} />
+        <Route path="sanctuary" element={<SanctuaryPage />} />
+        <Route path="sanctuary/:sceneId" element={<SanctuarySceneRoute />} />
         <Route path="screensaver" element={<ScreensaverPage />} />
         <Route path="ascii" element={<AsciiPage />} />
         <Route path="code-vision" element={<CodeVisionPage />} />

@@ -44,7 +44,7 @@ function stripModuleSyntax(source: string): string {
  */
 function rainStandalonePlugin(): Plugin {
   return {
-    name: 'operator:rain-standalone',
+    name: 'constyx:rain-standalone',
     resolveId(id) {
       if (id === RAIN_VIRTUAL_ID) return RAIN_RESOLVED_ID;
     },
@@ -171,7 +171,7 @@ function sitemap(base: string, pages: PageMeta[]): string {
  *   Graph/Twitter tags), injected into index.html in dev and build;
  * - `site.webmanifest`, with every path run through the base;
  * - at build: one prerendered HTML file per real route (`operator/index.html`,
- *   `focus/pod-bay/index.html`, …) carrying that page's own title and
+ *   `sanctuary/pod-bay/index.html`, …) carrying that page's own title and
  *   description, so GitHub Pages answers deep links with 200 and link previews
  *   are page-specific; a noindex `404.html` for everything else, which boots
  *   the SPA into its not-found screen; `sitemap-index.xml`; and `robots.txt`.
