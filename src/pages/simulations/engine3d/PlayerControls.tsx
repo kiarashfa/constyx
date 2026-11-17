@@ -26,6 +26,8 @@ export interface JumpConfig {
   maxVelY: number;
   /** Horizontal boost multiplier at perfect quality: v *= 1 + boost. */
   forwardBoost: number;
+  /** Keep the launch velocity in the air when no direction is held (long leaps). */
+  carryMomentum?: boolean;
 }
 
 interface PlayerControlsProps {
@@ -300,7 +302,8 @@ export function PlayerControls({
     // Exponential smoothing — grounded feels heavy; airborne preserves
     // momentum with only faint steering authority.
     const smoothing = s.airborne ? 0.6 : 7;
-    velocity.lerp(targetVel, 1 - Math.exp(-smoothing * dt));
+    const coasting = s.airborne && jump?.carryMomentum && move === 0 && strafe === 0;
+    if (!coasting) velocity.lerp(targetVel, 1 - Math.exp(-smoothing * dt));
 
     pos.x += velocity.x * dt;
     pos.z += velocity.z * dt;
@@ -332,7 +335,7 @@ export function PlayerControls({
     }
 
     // ---- camera = feet + eye height + decaying shake ----
-    camera.position.set(pos.x, pos.y + eyeHeight, pos.z);
+    camera.position.set(pos.x, pos.y + eyeHeight - store.eyeDrop, pos.z);
     if (s.shakeMag > 0.002) {
       camera.position.x += (Math.random() - 0.5) * s.shakeMag;
       camera.position.y += (Math.random() - 0.5) * s.shakeMag;

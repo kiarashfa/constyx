@@ -108,6 +108,8 @@ export class SceneStore {
     feetY: 0,
     velY: 0,
   };
+  /** Metres the eye sits below its normal height; scenes animate it (hard landings). */
+  eyeDrop = 0;
   /** Wired by PlayerControls; callable from DOM buttons (user gestures). */
   lock: () => void = () => {};
   unlock: () => void = () => {};

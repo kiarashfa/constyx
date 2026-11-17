@@ -37,6 +37,8 @@ export interface SceneShellProps {
   colliders: Collider2D[];
   /** Walkable surfaces. Omit for an infinite floor at y=0. */
   platforms?: Platform[];
+  /** Camera far plane in metres (default 120). Open-air scenes need more. */
+  far?: number;
   /** Sprint/jump/gravity configuration. Omit for plain walking. */
   player?: PlayerOptions;
   onExit: () => void;
@@ -97,6 +99,7 @@ export function SceneShell({
   cameraRig = 'first-person',
   colliders,
   platforms,
+  far = 120,
   player,
   onExit,
   overlay,
@@ -149,7 +152,7 @@ export function SceneShell({
   return (
     <SceneStoreContext.Provider value={store}>
       <div className="fixed inset-0 z-40 bg-terminal">
-        <Canvas dpr={[1, 1.75]} camera={{ fov: 70, near: 0.1, far: 120 }}>
+        <Canvas dpr={[1, 1.75]} camera={{ fov: 70, near: 0.1, far }}>
           {cameraRig === 'first-person' ? (
             <PlayerControls
               spawn={spawn}

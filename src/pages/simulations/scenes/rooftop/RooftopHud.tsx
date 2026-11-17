@@ -1,9 +1,9 @@
 import { useEffect, useRef } from 'react';
 import { MatrixRain, type RainHandle } from '../../../../engine/rain';
 import { useSceneStore } from '../../engine3d/store';
-import { SWEET_START, SWEET_END, SPRINT_MAX } from './tuning';
+import { FALL_START, SWEET_START, SWEET_END, SPRINT_MAX } from './tuning';
 
-export type RooftopPhase = 'run' | 'glitch' | 'pullout';
+export type RooftopPhase = 'run' | 'impact' | 'glitch' | 'pullout';
 
 interface RooftopHudProps {
   phase: RooftopPhase;
@@ -66,9 +66,9 @@ export function RooftopHud({ phase, fails, maxFails, cleared }: RooftopHudProps)
       }
 
       if (fallOverlay.current) {
-        const falling = m.airborne && m.velY < -7;
+        const falling = m.airborne && m.feetY < FALL_START;
         fallOverlay.current.style.opacity = falling
-          ? String(Math.min(0.85, (-m.velY - 7) / 14))
+          ? String(Math.min(0.85, (FALL_START - m.feetY) / 45))
           : '0';
         fallOverlay.current.classList.toggle('fall-shake', falling);
       }
@@ -88,6 +88,10 @@ export function RooftopHud({ phase, fails, maxFails, cleared }: RooftopHudProps)
             'radial-gradient(ellipse at center, transparent 30%, rgba(120,10,10,0.55) 85%)',
         }}
       />
+
+      {/* Daylight scene: dark washes keep the phosphor readable against the sky */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-14 bg-gradient-to-b from-black/45 to-transparent" />
+      <div className="pointer-events-none absolute bottom-0 left-0 h-36 w-96 bg-gradient-to-tr from-black/65 via-black/25 to-transparent" />
 
       {/* Meters */}
       <div className="pointer-events-none absolute bottom-6 left-6 space-y-3 text-[10px] tracking-[0.25em]">
