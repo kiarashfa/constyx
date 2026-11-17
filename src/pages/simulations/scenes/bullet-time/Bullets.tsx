@@ -1,6 +1,6 @@
 import { useMemo, useRef, type MutableRefObject } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Quaternion, Vector3, type Group, type Mesh, type MeshStandardMaterial } from 'three';
+import { AdditiveBlending, LatheGeometry, Quaternion, Vector2, Vector3, type Group, type Mesh, type MeshBasicMaterial } from 'three';
 
 export type DodgeDir = 'back' | 'left' | 'right';
 
@@ -21,10 +21,10 @@ export interface BulletSlot {
 }
 
 export const MAX_BULLETS = 6;
-const RINGS_PER_BULLET = 6;
-/** Meters of travel between wake rings. */
-const RING_SPACING = 0.9;
-const RING_LIFE = 1.1;
+const RINGS_PER_BULLET = 22;
+/** Meters of travel between wake rings (the film's trail is a close train of air ripples). */
+const RING_SPACING = 0.42;
+const RING_LIFE = 1.5;
 
 export function makeBulletPool(): BulletSlot[] {
   return Array.from({ length: MAX_BULLETS }, () => ({
@@ -73,6 +73,22 @@ export function BulletsView({
   const dirVec = useMemo(() => new Vector3(), []);
   const quat = useMemo(() => new Quaternion(), []);
   const Z_AXIS = useMemo(() => new Vector3(0, 0, 1), []);
+  // The slug: a lathed round-nose bullet whose nose points along +z, the axis the
+  // per-frame quaternion turns onto the flight direction.
+  const slugGeometry = useMemo(() => {
+    const r = 0.0065;
+    const pts = [
+      new Vector2(0, -0.016),
+      new Vector2(r, -0.016),
+      new Vector2(r, 0.002),
+      new Vector2(r * 0.85, 0.008),
+      new Vector2(r * 0.5, 0.013),
+      new Vector2(0, 0.016),
+    ];
+    const g = new LatheGeometry(pts, 10);
+    g.rotateX(Math.PI / 2);
+    return g;
+  }, []);
 
   useFrame((_, rawDt) => {
     const dt = Math.min(rawDt, 0.05);
@@ -125,10 +141,12 @@ export function BulletsView({
         }
         r.age += dt;
         ring.visible = true;
-        const s = 1 + r.age * 5.5;
-        ring.scale.set(s, s, s);
-        const mat = ring.material as MeshStandardMaterial;
-        mat.opacity = Math.max(0, 0.45 * (1 - r.age / RING_LIFE));
+        // the ripple swells only a little: wide rings would seem to cut through the dodging body
+        const s = 1 + r.age * 1.5;
+        ring.scale.set(s, s, 1);
+        const mat = ring.material as MeshBasicMaterial;
+        const k = 1 - r.age / RING_LIFE;
+        mat.opacity = Math.max(0, 0.42 * k * k);
       });
 
       // Hit spark: brief flare at the impact point.
@@ -157,33 +175,25 @@ export function BulletsView({
     <>
       {Array.from({ length: MAX_BULLETS }, (_, i) => (
         <group key={i} ref={(g) => void (groups.current[i] = g)} visible={false}>
-          <mesh ref={(m) => void (tracers.current[i] = m)} rotation={[Math.PI / 2, 0, 0]}>
-            {/* Capsule points +y; parent quaternion aligns +z, so pre-rotate */}
-            <capsuleGeometry args={[0.022, 0.16, 4, 8]} />
-            <meshStandardMaterial
-              color="#e8c987"
-              emissive="#d9a84e"
-              emissiveIntensity={2.4}
-              metalness={0.6}
-              roughness={0.3}
-            />
+          <mesh ref={(m) => void (tracers.current[i] = m)} geometry={slugGeometry}>
+            <meshBasicMaterial color="#b89a5c" toneMapped={false} />
           </mesh>
           {Array.from({ length: RINGS_PER_BULLET }, (_, j) => (
             <mesh key={j} ref={(m) => void (rings.current[i][j] = m)} visible={false}>
-              <torusGeometry args={[0.05, 0.008, 6, 20]} />
-              <meshStandardMaterial
-                color="#dfe8ee"
-                emissive="#9fb4c4"
-                emissiveIntensity={0.5}
+              <torusGeometry args={[0.065, 0.0055, 6, 28]} />
+              <meshBasicMaterial
+                color="#f4fbf6"
                 transparent
-                opacity={0.55}
+                opacity={0.4}
                 depthWrite={false}
+                blending={AdditiveBlending}
+                toneMapped={false}
               />
             </mesh>
           ))}
           <mesh ref={(m) => void (sparks.current[i] = m)} visible={false}>
-            <sphereGeometry args={[0.05, 8, 8]} />
-            <meshStandardMaterial color="#ffd0a0" emissive="#ff7040" emissiveIntensity={3} />
+            <sphereGeometry args={[0.025, 8, 8]} />
+            <meshBasicMaterial color="#fff3dc" transparent opacity={0.85} blending={AdditiveBlending} depthWrite={false} toneMapped={false} />
           </mesh>
         </group>
       ))}

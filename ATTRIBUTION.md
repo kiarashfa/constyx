@@ -34,6 +34,7 @@ Scene geometry is original modelling. The Poly Haven maps below are blended into
 |---|---|---|
 | `src/pages/simulations/scenes/dojo/assets/opponent.glb` | [MakeHuman](http://www.makehumancommunity.org) base mesh, morph targets and skin weights (hm08, released as CC0) | Dojo sparring partner: head, hands and feet. Clothing, rig reduction and textures are original work. |
 | `src/pages/simulations/scenes/rooftop/assets/rooftop.glb` | [MakeHuman](http://www.makehumancommunity.org) base mesh, morph targets and skin weights (hm08, released as CC0) | Rooftop figure on the far roof: head and hands. Clothing, pose and textures are original work. |
+| `src/pages/simulations/scenes/bullet-time/assets/figures.glb` | [MakeHuman](http://www.makehumancommunity.org) base mesh, morph targets and skin weights (hm08, released as CC0) | Bullet-time figures (the operator and the agent): bodies, heads and hands. Clothing, hair, rig reduction, poses and textures are original work. |
 | `src/pages/simulations/scenes/red-dress/assets/people.glb` | [MakeHuman](http://www.makehumancommunity.org) base mesh, morph targets and skin weights (hm08, released as CC0) | Street crowd figures: bodies, heads and hands. Clothing, hair, rig reduction, walk cycles and textures are original work. |
 
 ## Visual references (not shipped)

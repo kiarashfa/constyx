@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObject } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { Vector3, type Group, type Mesh } from 'three';
+import { Vector3, type PerspectiveCamera } from 'three';
 import { SceneShell } from '../../engine3d/SceneShell';
 import { useSceneStore, type SceneStore } from '../../engine3d/store';
 import type { SceneComponentProps } from '../../scenes';
 import { sfxWhoosh } from '../../../../engine/audio';
-import { Avatar, type AvatarCtl } from './Avatar';
+import { Agent, Operator, preloadFigures, type AvatarCtl } from './Figures';
+import { AGENT_AT, BulletWorld, FAR, preloadWorld } from './World';
+import { Smoke } from './Smoke';
 import { BulletsView, makeBulletPool, type BulletSlot, type DodgeDir } from './Bullets';
 import {
   BulletTimeHud,
@@ -33,148 +35,17 @@ const WAVES: WaveDef[] = [
   { bullets: 5, flightSec: 2.5, windowSec: 0.95, gapSec: 0.75 },
 ];
 const MAX_GRAZES = 3;
-const MUZZLE = new Vector3(0.28, 1.44, -12.6);
+/** The agent's live muzzle (world space), kept up to date by <Agent>. */
+const MUZZLE = new Vector3(AGENT_AT[0] - 0.2, 1.45, AGENT_AT[2] + 0.75);
+
+/** Awaited by the scene route behind the jack-in transition. */
+export const preload = () => Promise.all([preloadWorld(), preloadFigures()]);
 /** Where each dodge direction's bullet is aimed on the standing body. */
 const ZONES: Record<DodgeDir, [number, number, number]> = {
   back: [0, 1.52, 0.05],
   left: [0.34, 1.35, 0], // passes the right side — leaning LEFT clears it
   right: [-0.34, 1.35, 0],
 };
-
-/* ------------------------------------------------------------- environment */
-
-const DUSK = '#141a2b';
-
-function DuskRooftop() {
-  const towers = useMemo(() => {
-    let seed = 4242;
-    const rand = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-    return Array.from({ length: 14 }, (_, i) => {
-      const angle = (i / 14) * Math.PI * 2 + rand() * 0.3;
-      const radius = 36 + rand() * 26;
-      return {
-        pos: [Math.sin(angle) * radius, -20 + (8 + rand() * 26) / 2, Math.cos(angle) * radius] as [
-          number,
-          number,
-          number,
-        ],
-        size: [4 + rand() * 6, 8 + rand() * 26, 4 + rand() * 6] as [number, number, number],
-      };
-    });
-  }, []);
-  return (
-    <>
-      <color attach="background" args={[DUSK]} />
-      <fog attach="fog" args={[DUSK, 26, 85]} />
-      <ambientLight color="#8b9bc2" intensity={1.05} />
-      <hemisphereLight args={['#4a5c88', '#1a1a20', 1.0]} />
-      {/* Sun just below the horizon — long warm key from behind the agent */}
-      <directionalLight position={[-6, 5, -30]} color="#ff9d5c" intensity={1.1} />
-      <directionalLight position={[8, 12, 14]} color="#8fa3cc" intensity={0.5} />
-      {/* Practical over the shooter so he reads against the skyline */}
-      <pointLight position={[1.5, 3.4, -12]} color="#ffc890" distance={9} intensity={5} />
-
-      {/* Roof slab + building mass */}
-      <mesh position={[0, -10, -3]}>
-        <boxGeometry args={[20, 20, 26]} />
-        <meshStandardMaterial color="#5a6472" roughness={0.4} metalness={0.1} />
-      </mesh>
-      {/* Parapets */}
-      {(
-        [
-          [0, -15.8, 20, 0.4],
-          [0, 9.8, 20, 0.4],
-          [-9.8, -3, 0.4, 26],
-          [9.8, -3, 0.4, 26],
-        ] as const
-      ).map(([x, z, w, d], i) => (
-        <mesh key={i} position={[x, 0.42, z]}>
-          <boxGeometry args={[w, 0.85, d]} />
-          <meshStandardMaterial color="#5c6674" roughness={0.6} />
-        </mesh>
-      ))}
-      {/* Props */}
-      <mesh position={[-5.5, 0.6, -6]}>
-        <boxGeometry args={[1.6, 1.2, 1.4]} />
-        <meshStandardMaterial color="#6a7482" roughness={0.6} metalness={0.2} />
-      </mesh>
-      <mesh position={[6, 1.6, 4]}>
-        <cylinderGeometry args={[0.04, 0.06, 3.2, 8]} />
-        <meshStandardMaterial color="#39404a" roughness={0.6} metalness={0.4} />
-      </mesh>
-      {/* Skyline silhouettes */}
-      {towers.map((t, i) => (
-        <mesh key={i} position={t.pos}>
-          <boxGeometry args={t.size} />
-          <meshStandardMaterial color="#1b2230" roughness={0.9} />
-        </mesh>
-      ))}
-    </>
-  );
-}
-
-/** The shooter: dark suit, tie, glasses, arm extended, muzzle flash. */
-function AgentShooter({ flashRef, clockRef }: { flashRef: MutableRefObject<number>; clockRef: MutableRefObject<number> }) {
-  const root = useRef<Group>(null);
-  const flash = useRef<Mesh>(null);
-  useFrame(({ clock }) => {
-    if (root.current) root.current.rotation.y = Math.sin(clock.elapsedTime * 0.6) * 0.03;
-    if (flash.current) flash.current.visible = clockRef.current < flashRef.current;
-  });
-  return (
-    <group ref={root} position={[0, 0, -13.2]} rotation={[0, Math.PI, 0]}>
-      {/* legs */}
-      {([-1, 1] as const).map((s) => (
-        <mesh key={s} position={[s * 0.11, 0.48, 0]}>
-          <capsuleGeometry args={[0.065, 0.75, 4, 10]} />
-          <meshStandardMaterial color="#1c1e24" roughness={0.7} />
-        </mesh>
-      ))}
-      {/* torso + shirt + tie */}
-      <mesh position={[0, 1.28, 0]}>
-        <capsuleGeometry args={[0.17, 0.42, 4, 12]} />
-        <meshStandardMaterial color="#22242b" roughness={0.65} />
-      </mesh>
-      <mesh position={[0, 1.34, 0.145]}>
-        <boxGeometry args={[0.09, 0.3, 0.02]} />
-        <meshStandardMaterial color="#d8dade" roughness={0.8} />
-      </mesh>
-      <mesh position={[0, 1.3, 0.155]}>
-        <boxGeometry args={[0.03, 0.24, 0.015]} />
-        <meshStandardMaterial color="#0d0e12" roughness={0.6} />
-      </mesh>
-      {/* head + glasses */}
-      <mesh position={[0, 1.75, 0]}>
-        <sphereGeometry args={[0.105, 18, 14]} />
-        <meshStandardMaterial color="#c9a68a" roughness={0.55} />
-      </mesh>
-      <mesh position={[0, 1.77, 0.095]}>
-        <boxGeometry args={[0.14, 0.03, 0.028]} />
-        <meshStandardMaterial color="#0a0a0c" roughness={0.2} metalness={0.4} />
-      </mesh>
-      {/* left arm at side */}
-      <mesh position={[-0.26, 1.25, 0]} rotation={[0, 0, 0.12]}>
-        <capsuleGeometry args={[0.05, 0.45, 4, 8]} />
-        <meshStandardMaterial color="#22242b" roughness={0.65} />
-      </mesh>
-      {/* right arm extended toward the player, pistol in hand */}
-      <group position={[0.24, 1.46, 0.02]} rotation={[Math.PI / 2 - 0.06, 0, -0.05]}>
-        <mesh position={[0, -0.26, 0]}>
-          <capsuleGeometry args={[0.05, 0.44, 4, 8]} />
-          <meshStandardMaterial color="#22242b" roughness={0.65} />
-        </mesh>
-        <mesh position={[0, -0.54, 0.03]}>
-          <boxGeometry args={[0.035, 0.14, 0.06]} />
-          <meshStandardMaterial color="#17181c" roughness={0.35} metalness={0.5} />
-        </mesh>
-        <mesh ref={flash} position={[0, -0.66, 0.05]} visible={false}>
-          <sphereGeometry args={[0.06, 8, 8]} />
-          <meshStandardMaterial color="#fff0c8" emissive="#ffd873" emissiveIntensity={4} />
-        </mesh>
-      </group>
-    </group>
-  );
-}
 
 /* ------------------------------------------------------------- camera rig */
 
@@ -195,6 +66,19 @@ function CameraRig({
   const sweep = useRef(0);
   const shakeMag = useRef(0);
   const desired = useMemo(() => new Vector3(), []);
+  const look = useMemo(() => new Vector3(), []);
+
+  // A longer lens than the shell's default: the film frame is about 74 degrees across.
+  useEffect(() => {
+    const cam = camera as PerspectiveCamera;
+    const before = cam.fov;
+    cam.fov = 45;
+    cam.updateProjectionMatrix();
+    return () => {
+      cam.fov = before;
+      cam.updateProjectionMatrix();
+    };
+  }, [camera]);
 
   useEffect(() => {
     store.shake = (magnitude) => {
@@ -210,20 +94,36 @@ function CameraRig({
       sweepRef.current = 0;
     }
     sweep.current *= Math.exp(-1.1 * dt);
+    // DEV: a fixed camera for matched-frame comparisons with the film.
+    const hold = import.meta.env.DEV
+      ? ((window as unknown as Record<string, unknown>).__btCam as { pos: number[]; look: number[]; fov?: number } | undefined)
+      : undefined;
+    if (hold) {
+      camera.position.set(hold.pos[0], hold.pos[1], hold.pos[2]);
+      camera.lookAt(hold.look[0], hold.look[1], hold.look[2]);
+      const cam = camera as PerspectiveCamera;
+      if (hold.fov && cam.fov !== hold.fov) {
+        cam.fov = hold.fov;
+        cam.updateProjectionMatrix();
+      }
+      return;
+    }
 
-    // Over-the-shoulder orbit: mostly behind-right of the avatar, agent in
-    // frame; a back-dodge kicks a faster arc sweep around the arching body.
-    const az = 0.42 + Math.sin(clockRef.current * 0.07) * 0.22 + sweep.current * 1.05;
-    const radius = 3.6 - sweep.current * 0.5;
-    desired.set(Math.sin(az) * radius, 1.72 - sweep.current * 0.35, Math.cos(az) * radius);
+    // The film's dodge wide: low behind his right shoulder, looking down the roof at
+    // the agent with the glass tower filling the sky. A back-dodge kicks the orbit:
+    // the camera swings round the arching body and closes in on it.
+    const az = 0.27 + Math.sin(clockRef.current * 0.07) * 0.12 + sweep.current * 1.9;
+    const radius = 3.8 - sweep.current * 1.2;
+    desired.set(Math.sin(az) * radius, 1.35 - sweep.current * 0.3, Math.cos(az) * radius);
     camera.position.lerp(desired, 1 - Math.exp(-5 * dt));
     if (shakeMag.current > 0.002) {
       camera.position.x += (Math.random() - 0.5) * shakeMag.current;
       camera.position.y += (Math.random() - 0.5) * shakeMag.current;
       shakeMag.current *= Math.exp(-6 * dt);
     }
-    // Aim between the avatar and the shooter so both stay composed in frame.
-    camera.lookAt(0, 1.08 - sweep.current * 0.2, -2.4);
+    const k = Math.min(1, sweep.current * 1.6);
+    look.set(0, 1.25 + (0.85 - 1.25) * k, AGENT_AT[2] * (1 - k));
+    camera.lookAt(look);
   });
   return null;
 }
@@ -553,6 +453,8 @@ export default function BulletTimeScene({ onExit }: SceneComponentProps) {
         prompt: () => ({ ...prompt.current }),
         stats: () => ({ ...statsRef.current }),
         avatar: () => ({ ...avatarCtl.current }),
+        muzzle: () => MUZZLE.toArray(),
+        zones: ZONES,
       };
     }
   }, [answer]);
@@ -562,6 +464,7 @@ export default function BulletTimeScene({ onExit }: SceneComponentProps) {
       title="BULLET TIME"
       spawn={[0, 0, 0]}
       cameraRig="scene"
+      far={FAR}
       colliders={[]}
       onExit={onExit}
       overlay={
@@ -593,9 +496,10 @@ export default function BulletTimeScene({ onExit }: SceneComponentProps) {
         </>
       }
     >
-      <DuskRooftop />
-      <Avatar ctl={avatarCtl} />
-      <AgentShooter flashRef={agentFlash} clockRef={clockRef} />
+      <BulletWorld />
+      <Smoke />
+      <Operator ctl={avatarCtl} />
+      <Agent flashUntil={agentFlash} clockRef={clockRef} muzzle={MUZZLE} />
       <BulletsView slots={slots} clockRef={clockRef} />
       <CameraRig clockRef={clockRef} sweepRef={sweepRef} />
       <WaveSystem
