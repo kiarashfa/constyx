@@ -1,7 +1,7 @@
 import { useEffect, useRef, type MutableRefObject } from 'react';
 import { MatrixRain } from '../../../../engine/rain';
 
-export type RdPhase = 'street' | 'spotted' | 'won' | 'program';
+export type RdPhase = 'street' | 'spotted' | 'frozen' | 'won' | 'program';
 
 interface RedDressHudProps {
   phase: RdPhase;
@@ -36,12 +36,14 @@ export function RedDressHud({ phase, attempts, hintsUsed, detectionRef }: RedDre
     <>
       <div className="pointer-events-none absolute left-1/2 top-10 -translate-x-1/2 text-center text-[10px] tracking-[0.35em]">
         {phase === 'street' && (
-          <p className="text-phosphor/60">reach the ringing hardline · unseen</p>
+          <p className="text-phosphor/60">find the one who is watching · [F] stop the program</p>
         )}
+        {phase === 'frozen' && <p className="text-phosphor/60">program halted · walk it</p>}
       </div>
 
       <div className="pointer-events-none absolute right-4 top-10 text-right text-[10px] tracking-[0.25em] text-phosphor/50">
         <p>ATTEMPT {attempts + 1}</p>
+        <p className="mt-1">[F] stop the program</p>
         <p className="mt-1">[H] hint{hintsUsed > 0 ? ` · used ${hintsUsed}` : ''}</p>
       </div>
 
@@ -68,7 +70,7 @@ export function RedDressHud({ phase, attempts, hintsUsed, detectionRef }: RedDre
             <div className="border border-[#ff5f56]/60 bg-terminal/85 px-6 py-4 text-center">
               <p className="text-[10px] tracking-[0.4em] text-[#ff5f56]">YOU'VE BEEN MADE</p>
               <p className="mt-2 text-sm tracking-[0.25em] text-phosphor">
-                RELOADING THE STREET :: HE WON'T BE WHERE HE WAS
+                YOU WERE SEEN :: RELOADING, HE WON'T BE WHERE HE WAS
               </p>
             </div>
           </div>
@@ -104,11 +106,12 @@ export function WinOverlay({
     <div className="absolute inset-0 z-10 flex items-center justify-center bg-terminal/85 p-4">
       <div className="w-full max-w-md border border-phosphor/40 bg-terminal/95 p-6">
         <p className="text-[10px] tracking-[0.4em] text-phosphor-dim">AWARENESS PROGRAM :: COMPLETE</p>
-        <h2 className="glow mt-1 text-2xl tracking-[0.25em] text-phosphor">HARDLINE REACHED</h2>
+        <h2 className="glow mt-1 text-2xl tracking-[0.25em] text-phosphor">PROGRAM HALTED</h2>
         <p className="mt-3 text-xs leading-relaxed text-phosphor/60">
-          You looked at everything and lingered on nothing. The crowd never learned your
-          face; the one who was watching never got the chance. That's the whole lesson:
-          the street is full of things built to be looked at. Stay the one doing the looking.
+          You looked at everything and lingered on nothing, and you picked him out before
+          he picked you. That's the whole lesson: the street is full of things built to be
+          looked at, and anyone you have not unplugged can become one of them. Stay the one
+          doing the looking.
         </p>
         <dl className="mt-4 space-y-1 border-t border-phosphor/20 pt-3 text-xs text-phosphor/70">
           {rows.map(([k, v]) => (

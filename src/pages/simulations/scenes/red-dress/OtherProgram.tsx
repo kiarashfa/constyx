@@ -1,7 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
-import { useFrame } from '@react-three/fiber';
-import type { Group } from 'three';
+import { useEffect, useState } from 'react';
 import { useSceneStore } from '../../engine3d/store';
+import { StandingFigure } from './crowd';
+
+const HER_AT: [number, number, number] = [0, 0, -1.7];
+const HER_HAIR: [number, number, number] = [1.3, 1.1, 0.66];
+const HER_SKIN: [number, number, number] = [1.04, 0.98, 0.93];
 
 /* "Mouse's other program" — the hidden scene. A quiet white-void vignette:
  * she knows exactly what she is, and this is the one program where somebody
@@ -59,52 +62,6 @@ const BEATS: Beat[] = [
   },
 ];
 
-/** Her, standing in the void — reuses the crowd's silhouette language. */
-function HerFigure() {
-  const root = useRef<Group>(null);
-  useFrame(({ clock }) => {
-    const g = root.current;
-    if (!g) return;
-    const t = clock.elapsedTime;
-    g.position.y = Math.sin(t * 1.6) * 0.015;
-    g.rotation.y = Math.PI + Math.sin(t * 0.5) * 0.05;
-  });
-  return (
-    <group ref={root} position={[0, 0, -1.7]}>
-      {([-1, 1] as const).map((s) => (
-        <mesh key={s} position={[s * 0.09, 0.5, 0]}>
-          <capsuleGeometry args={[0.06, 0.68, 4, 8]} />
-          <meshStandardMaterial color="#deb896" roughness={0.55} />
-        </mesh>
-      ))}
-      <mesh position={[0, 0.82, 0]}>
-        <coneGeometry args={[0.32, 0.8, 14]} />
-        <meshStandardMaterial color="#c8102e" roughness={0.45} />
-      </mesh>
-      <mesh position={[0, 1.28, 0]}>
-        <capsuleGeometry args={[0.155, 0.4, 4, 10]} />
-        <meshStandardMaterial color="#c8102e" roughness={0.45} />
-      </mesh>
-      {([-1, 1] as const).map((s) => (
-        <mesh key={s} position={[s * 0.22, 1.28, 0.02]} rotation={[0.15, 0, s * -0.15]}>
-          <capsuleGeometry args={[0.045, 0.4, 4, 8]} />
-          <meshStandardMaterial color="#deb896" roughness={0.55} />
-        </mesh>
-      ))}
-      <group position={[0, 1.78, 0]}>
-        <mesh position={[0, 0.05, 0]}>
-          <sphereGeometry args={[0.105, 16, 12]} />
-          <meshStandardMaterial color="#deb896" roughness={0.5} />
-        </mesh>
-        <mesh position={[0, 0.1, -0.02]}>
-          <sphereGeometry args={[0.115, 16, 10, 0, Math.PI * 2, 0, Math.PI * 0.58]} />
-          <meshStandardMaterial color="#d9b36a" roughness={0.55} />
-        </mesh>
-      </group>
-    </group>
-  );
-}
-
 /** The void + her; mounted while phase === 'program'. */
 export function OtherProgramWorld() {
   return (
@@ -117,7 +74,7 @@ export function OtherProgramWorld() {
         <circleGeometry args={[24, 40]} />
         <meshStandardMaterial color="#f2f5f3" roughness={0.9} />
       </mesh>
-      <HerFigure />
+      <StandingFigure fig="red" position={HER_AT} hair={HER_HAIR} skin={HER_SKIN} />
     </>
   );
 }
